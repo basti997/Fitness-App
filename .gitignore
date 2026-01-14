@@ -1,0 +1,47 @@
+
+C#
+
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Ww]eb[Ss]etup/
+[Aa]rm/
+[Aa]rm64/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+
+Visual Studio
+
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+JetBrains
+
+.idea/
+*.project.user[s]
+*.kess
+*.sln.iml
+
+Rider
+
+.idea/
+*.sln.iml
+.idea/.idea.*/.idea/
+.idea/.idea.Workflow/
+.idea/.idea.Web/
+
+User-specific files
+
+*.rsuser
+
+Environment files
+
+.env
+appsettings.Development.json
