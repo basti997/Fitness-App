@@ -1,0 +1,118 @@
+<div class="user-card-wrapper">
+  <div class="user-summary" *ngIf="lastSavedUser; else notLoggedIn">
+    <div class="avatar-circle">
+      {{ lastSavedUser.username.charAt(0) | uppercase }}
+    </div>
+    <div class="user-summary-text">
+      <div class="user-summary-name">{{ lastSavedUser.username }}</div>
+      <div class="user-summary-meta">
+        ID: {{ lastSavedUser.user_id }} · Joined {{ lastSavedUser.created_at | date:'mediumDate' }}
+      </div>
+    </div>
+  </div>
+
+  <ng-template #notLoggedIn>
+    <div class="user-summary-placeholder">
+      <p>No user logged in yet.</p>
+    </div>
+  </ng-template>
+
+  <div class="user-actions">
+    <button class="btn btn-primary large" (click)="openLogin()">
+      {{ loginButtonLabel }}
+    </button>
+  </div>
+</div>
+
+<div class="popup-backdrop" *ngIf="showUserPopup">
+  <div class="popup-window">
+    <h2>Login / Create User</h2>
+
+    <form (ngSubmit)="saveUser()">
+      <div class="form-row">
+        <label>Username:</label>
+        <input type="text" [(ngModel)]="user.username" name="username" required>
+      </div>
+
+      <div class="form-row">
+        <label>Email:</label>
+        <input type="email" [(ngModel)]="user.email" name="email" required>
+      </div>
+
+      <div class="form-row">
+        <label>Password:</label>
+        <input type="password" [(ngModel)]="user.password_hash" name="password_hash">
+      </div>
+
+      <div class="form-row">
+        <label>Created At (auto):</label>
+        <input type="text" [value]="user.created_at | date:'yyyy-MM-dd HH:mm:ss'" disabled>
+      </div>
+
+      <div class="popup-actions">
+        <button type="submit" class="btn">Save</button>
+        <button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+
+<!-- src/app/components/user-card/user-card.html -->
+<!--<div class="user-card">
+    <div class="card-header">
+      <h2>👤 {{ user.username }}</h2>
+      <span class="status">Active User</span>
+    </div>
+    
+    <div class="user-details">
+      <div class="detail-row">
+        <label>User ID:</label>
+        <span class="value">{{ user.user_id }}</span>
+      </div>
+      
+      <div class="detail-row">
+        <label>Username:</label>
+        <span class="value">{{ user.username }}</span>
+      </div>
+      
+      <div class="detail-row">
+        <label>Email:</label>
+        <span class="value">{{ user.email }}</span>
+      </div>
+      
+      <div class="detail-row">
+        <label>Password Hash:</label>
+        <span class="value">************</span>  // Hidden for security
+      </div>
+      
+      <div class="detail-row">
+        <label>Created At:</label>
+        <span class="value">{{ user.created_at | date:'medium' }}</span>
+      </div>
+    </div>
+    
+    <div class="card-actions">
+      <button class="btn btn-primary">Edit Profile</button>
+      <button class="btn btn-secondary">View Workouts</button>
+    </div>
+  </div> -->
+  
+
+
+  <!--<div>
+    <b>id:</b><span>{{user.user_id}}</span>
+    </div>
+    <div>
+    <b>Username</b><span>{{user.username}}</span>
+    </div>
+    <div>
+    <b>Email:</b><span>{{user.email}}</span>
+    </div>
+    <div>
+    <b>Password:</b><span>{{user.password_hash}}</span>
+    </div>
+    <div>
+    <b>Created:</b><span>{{user.created_at}}</span>
+    </div> -->

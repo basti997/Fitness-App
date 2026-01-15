@@ -1,0 +1,151 @@
+/* src/app/components/user-card/user-card.css */
+.user-card-wrapper {
+  max-width: 420px;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+  padding: 16px 20px 20px;
+  }
+  
+  .user-summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f0f0f0;
+  }
+  
+  .avatar-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 700;
+  font-size: 18px;
+  }
+  
+  .user-summary-text {
+  display: flex;
+  flex-direction: column;
+  }
+  
+  .user-summary-name {
+  font-weight: 600;
+  font-size: 16px;
+  color: #222;
+  }
+  
+  .user-summary-meta {
+  font-size: 12px;
+  color: #777;
+  }
+  
+  .user-summary-placeholder {
+  font-size: 14px;
+  color: #777;
+  }
+  
+  .user-actions {
+  margin-top: 12px;
+
+  }
+/* src/app/components/user-card/user-card.css */
+/* .user-card {
+    max-width: 400px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+  
+  .card-header {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    color: white;
+    padding: 24px;
+    text-align: center;
+  }
+  
+  .card-header h2 {
+    margin: 0 0 8px 0;
+    font-size: 1.5em;
+  }
+  
+  .status {
+    background: rgba(255,255,255,0.2);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.85em;
+    font-weight: 500;
+  }
+  
+  .user-details {
+    padding: 24px;
+  }
+  
+  .detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  
+  .detail-row:last-child {
+    border-bottom: none;
+  }
+  
+  .detail-row label {
+    font-weight: 600;
+    color: #666;
+    font-size: 0.9em;
+  }
+  
+  .detail-row .value {
+    font-weight: 500;
+    color: #333;
+    background: #f8f9fa;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-family: monospace;
+  }
+  
+  .card-actions {
+    padding: 0 24px 24px;
+    display: flex;
+    gap: 12px;
+  }
+  
+  .btn {
+    flex: 1;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .btn-primary {
+    background: #4facfe;
+    color: white;
+  }
+  
+  .btn-primary:hover {
+    background: #3d9cee;
+    transform: translateY(-1px);
+  }
+  
+  .btn-secondary {
+    background: #6c757d;
+    color: white;
+  }
+  
+  .btn-secondary:hover {
+    background: #5a6268;
+  }
+   */

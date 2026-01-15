@@ -1,0 +1,49 @@
+.workout-card {
+    background: #f8f9ff;
+    border-radius: 16px;
+    padding: 18px 20px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+  }
+  
+  .workout-card h2 {
+    margin-bottom: 4px;
+  }
+  
+  .meta {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 12px;
+  }
+  
+  .notes-label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 500;
+    color: #444;
+  }
+  
+  .notes-input {
+    width: 100%;
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid #dde2f2;
+    font-size: 14px;
+    resize: vertical;
+    min-height: 80px;
+  }
+  
+  .actions {
+    margin-top: 12px;
+    text-align: right;
+  }
+  
+  .finish-btn {
+    background: #28a745;
+    color: #fff;
+    border: none;
+    padding: 10px 22px;
+    border-radius: 999px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  

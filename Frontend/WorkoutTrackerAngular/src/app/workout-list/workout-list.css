@@ -1,0 +1,39 @@
+.workout-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    }
+    
+    .workout-item {
+    background: #fff;
+    border-radius: 10px;
+    padding: 12px 14px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+    
+    .workout-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6px;
+    font-size: 13px;
+    color: #666;
+    }
+    
+    .workout-id {
+    font-weight: 600;
+    color: #4f46e5;
+    }
+    
+    .workout-date {
+    font-style: italic;
+    }
+    
+    .workout-notes {
+    font-size: 14px;
+    color: #333;
+    }
+    
+    .workout-notes.empty {
+    color: #aaa;
+    font-style: italic;
+    }

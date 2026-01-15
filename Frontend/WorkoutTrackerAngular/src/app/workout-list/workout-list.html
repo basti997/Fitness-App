@@ -1,0 +1,19 @@
+<div *ngIf="workouts.length > 0" class="section"> 
+    <h2>📚 Workout History</h2> 
+    <div class="workout-list"> 
+        <div class="workout-item" *ngFor="let w of workouts"> 
+            <div class="workout-header"> 
+                <span class="workout-id">#{{ w.workout_id }}</span> 
+                <span class="workout-date">{{ w.workout_date | date:'medium' }}</span> 
+            </div> 
+            <div class="workout-notes" *ngIf="w.notes; else noNotes"> {{ w.notes }} 
+
+            </div> 
+            <ng-template #noNotes> 
+                <div class="workout-notes empty">No notes added.
+
+            </div> 
+            </ng-template> 
+        </div> 
+    </div> 
+</div>
