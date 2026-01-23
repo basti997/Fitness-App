@@ -2,6 +2,7 @@ import { User } from '../model/user';
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { output } from '@angular/core';
 
 @Component({
   selector: 'app-user-card',
@@ -11,6 +12,7 @@ import { FormsModule } from '@angular/forms';
 })
 export class UserCard {
   showUserPopup = false;
+  userChange = output<User | null>();
   isLoggedIn = false;
 
   private nextUserId = 1; // starts at 1, will increase on each new user
@@ -61,6 +63,7 @@ export class UserCard {
     this.lastSavedUser = { ...this.user };   // remember what was saved
     this.nextUserId++;
     this.showUserPopup = false;
+    this.userChange.emit(this.lastSavedUser);
     }
 
     cancel() {

@@ -29,6 +29,69 @@
     <h2>Login / Create User</h2>
 
     <form (ngSubmit)="saveUser()">
+      <!-- PERFECTLY ALIGNED GRID FORM -->
+      <div class="form-grid">
+        <div class="form-field">
+          <label>Username:</label>
+          <input type="text" [(ngModel)]="user.username" name="username" required>
+        </div>
+
+        <div class="form-field">
+          <label>Email:</label>
+          <input type="email" [(ngModel)]="user.email" name="email" required>
+        </div>
+
+        <div class="form-field">
+          <label>Password:</label>
+          <input type="password" [(ngModel)]="user.password_hash" name="password_hash">
+        </div>
+
+        <div class="form-field">
+          <label>Created At (auto):</label>
+          <input type="text" [value]="user.created_at | date:'yyyy-MM-dd HH:mm:ss'" disabled>
+        </div>
+      </div>
+
+      <div class="popup-actions">
+        <button type="submit" class="btn">Save</button>
+        <button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+<!-- <div class="user-card-wrapper">
+  <div class="user-summary" *ngIf="lastSavedUser; else notLoggedIn">
+    <div class="avatar-circle">
+      {{ lastSavedUser.username.charAt(0) | uppercase }}
+    </div>
+    <div class="user-summary-text">
+      <div class="user-summary-name">{{ lastSavedUser.username }}</div>
+      <div class="user-summary-meta">
+        ID: {{ lastSavedUser.user_id }} · Joined {{ lastSavedUser.created_at | date:'mediumDate' }}
+      </div>
+    </div>
+  </div>
+
+  <ng-template #notLoggedIn>
+    <div class="user-summary-placeholder">
+      <p>No user logged in yet.</p>
+    </div>
+  </ng-template>
+
+  <div class="user-actions">
+    <button class="btn btn-primary large" (click)="openLogin()">
+      {{ loginButtonLabel }}
+    </button>
+  </div>
+</div>
+
+<div class="popup-backdrop" *ngIf="showUserPopup">
+  <div class="popup-window">
+    <h2>Login / Create User</h2>
+
+    <form (ngSubmit)="saveUser()">
       <div class="form-row">
         <label>Username:</label>
         <input type="text" [(ngModel)]="user.username" name="username" required>
@@ -55,7 +118,7 @@
       </div>
     </form>
   </div>
-</div>
+</div> -->
 
 
 
