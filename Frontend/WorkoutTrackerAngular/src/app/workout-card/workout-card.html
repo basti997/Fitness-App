@@ -13,11 +13,28 @@
     (ngModelChange)="onNotesChange($event)" 
     placeholder="Write how you feel, focus, etc."> 
 
-    </textarea> <div class="actions"> 
+    </textarea> 
+    
+    <div class="exercise-actions" *ngIf="workout">
+      <button 
+          class="btn add-exercises-btn" 
+          (click)="addExercises()">
+          + Add Exercises
+      </button>
+      
+      <app-musclegroup-selector 
+          #muscleGroupSelector
+          (exerciseAdded)="onExerciseAdded($event)"
+          (overlayClosed)="onOverlayClosed()">
+      </app-musclegroup-selector>
+  </div>
+
+    <div class="actions"> 
         <button class="btn finish-btn" (click)="onFinishClicked()"> 
             ✅ Finish Workout </button> 
         </div> 
     </div>
+    
 
 
 <!--<div *ngIf="workout" class="workout-card">

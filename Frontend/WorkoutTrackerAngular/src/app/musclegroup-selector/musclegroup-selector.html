@@ -1,0 +1,44 @@
+<div class="overlay-backdrop" *ngIf="isOverlayOpen" (click)="closeOverlay()"></div>
+
+<div class="main-overlay" *ngIf="isOverlayOpen">
+  <div class="overlay-header">
+    <h2>Add Exercises</h2>
+    <button class="close-btn" (click)="closeOverlay()">&times;</button>
+  </div>
+
+  <div class="overlay-content">
+    <!-- Loading -->
+    <div class="loading" *ngIf="loading">
+      <div class="spinner"></div>
+      Loading...
+    </div>
+
+    <!-- Muscle Groups View -->
+    <div *ngIf="!loading && !showExercises" class="muscle-groups-view">
+      <div class="muscle-grid">
+        <div 
+          *ngFor="let group of muscleGroups"
+          class="muscle-card"
+          (click)="selectMuscleGroup(group.muscleGroupId)">
+          <div class="group-icon">{{ group.muscleGroupId }}</div>
+          <h3>{{ group.name }}</h3>
+        </div>
+      </div>
+    </div>
+
+    <!-- Exercises View -->
+    <div *ngIf="showExercises" class="exercises-view">
+      <button class="back-btn" (click)="backToGroups()">
+        ← Back to Muscle Groups
+      </button>
+
+      <!-- Embed ExerciseSelector -->
+      <app-exercise-selector 
+        [initialMuscleGroupId]="selectedMuscleGroupId!"
+        (exerciseAdded)="onExerciseSelected($event)"
+        (overlayClosed)="backToGroups()">
+      </app-exercise-selector>
+    </div>
+  </div>
+</div>
+

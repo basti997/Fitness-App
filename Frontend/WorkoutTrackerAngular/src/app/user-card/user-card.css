@@ -95,7 +95,9 @@
   transform: translateY(-4px) scale(1.02);
 }
 
-
+.btn:active {
+  transform: translateY(-2px) scale(1);
+}
 
 .btn-secondary {
   background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
@@ -103,7 +105,10 @@
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
 }
 
-
+.btn-secondary:hover {
+  background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+  transform: translateY(-4px);
+}
 
 .btn-secondary::before {
   content: "❌";  /* Close X */

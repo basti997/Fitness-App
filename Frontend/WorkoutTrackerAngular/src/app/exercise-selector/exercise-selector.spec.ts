@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { MusclegroupList } from './musclegroup-list';
+import { ExerciseSelector } from './exercise-selector';
 
-describe('MusclegroupList', () => {
-  let component: MusclegroupList;
-  let fixture: ComponentFixture<MusclegroupList>;
+describe('ExerciseSelector', () => {
+  let component: ExerciseSelector;
+  let fixture: ComponentFixture<ExerciseSelector>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [MusclegroupList]
+      imports: [ExerciseSelector]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(MusclegroupList);
+    fixture = TestBed.createComponent(ExerciseSelector);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });
