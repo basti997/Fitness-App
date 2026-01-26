@@ -2,35 +2,42 @@
 using WorkoutTracker.Data.Repositories; 
 
 var builder = WebApplication.CreateBuilder(args);
-
 // --- This is the ONLY line we need to register our module ---
 // This "registers" our new Repository so the controller can use it.
-builder.Services.AddScoped<MuscleGroupRepository>();
 // --- End of change ---
 
-
-builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
-builder.Services.AddScoped<UserRepository, UserRepository>();
-builder.Services.AddScoped<WorkoutRepository, WorkoutRepository>();
-builder.Services.AddScoped<WorkoutSetRepository, WorkoutSetRepository>();
-builder.Services.AddScoped<MuscleGroupRepository, MuscleGroupRepository>();
-builder.Services.AddScoped<ExerciseRepository, ExerciseRepository>();
+builder.Services.AddScoped<UserRepository>();
+builder.Services.AddScoped<WorkoutRepository>();
+builder.Services.AddScoped<WorkoutSetRepository>();
+builder.Services.AddScoped<MuscleGroupRepository>();
+builder.Services.AddScoped<ExerciseRepository>();
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
+    app.UseSwagger();
+    app.UseSwaggerUI();
     app.MapOpenApi();
+    app.UseDeveloperExceptionPage();
 }
 
 //app.UseHttpsRedirection();
-
+app.UseRouting();
 app.UseAuthorization();
 
 app.MapControllers();
-
+app.UseCors(policy =>
+{
+    policy.AllowAnyHeader();
+    policy.AllowAnyMethod();
+    policy.AllowAnyOrigin();
+});
 app.Run();

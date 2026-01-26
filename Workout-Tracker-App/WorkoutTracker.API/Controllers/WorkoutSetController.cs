@@ -18,7 +18,7 @@ using Microsoft.AspNetCore.Mvc;
     //-----------------------
     //Better customer journey
     //--------------------
-      // POST api/workoutset
+      // POST api/workoutset/create
     [HttpPost]
     public ActionResult AddSet([FromBody] WorkoutSet ws)
     {
@@ -74,7 +74,7 @@ using Microsoft.AspNetCore.Mvc;
         }
 
         // POST api/workoutset
-        [HttpPost]
+        [HttpPost("create")]
         public ActionResult Post([FromBody] WorkoutSet workoutSet)
         {
             if (workoutSet == null)
