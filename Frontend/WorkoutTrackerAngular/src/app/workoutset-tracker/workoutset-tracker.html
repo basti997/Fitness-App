@@ -1,1 +1,82 @@
-<p>workoutset-tracker works!</p>
+<div class="workoutset-card" *ngIf="exerciseName">
+    <!-- Header gradient like inspiration -->
+    <div class="exercise-header">
+      <div class="exercise-title-row">
+        <span class="exercise-status-icon">✅</span>
+        <h2 class="exercise-title">
+          {{ exerciseName }}
+          <span class="sets-done" *ngIf="sets.length > 0">
+            ({{ sets.length }} sets done)
+          </span>
+        </h2>
+      </div>
+      <p class="exercise-subtitle" *ngIf="todaysBestText">
+        {{ todaysBestText }}
+      </p>
+    </div>
+  
+    <!-- Add Set section -->
+    <section class="add-set-section">
+      <h3 class="section-title">Add Set</h3>
+  
+      <div class="add-set-row">
+        <div class="input-group">
+          <label class="input-label">Weight (kg)</label>
+          <input
+            type="number"
+            class="set-input"
+            [(ngModel)]="currentWeight"
+            min="0"
+          />
+        </div>
+  
+        <div class="input-group">
+          <label class="input-label">Reps</label>
+          <input
+            type="number"
+            class="set-input"
+            [(ngModel)]="currentReps"
+            min="0"
+          />
+        </div>
+  
+        <button class="btn add-set-btn" (click)="addSet()">
+          <span class="btn-plus">+</span>
+          <span class="btn-text">Add Set</span>
+        </button>
+      </div>
+    </section>
+  
+    <!-- Existing sets -->
+    <section class="sets-list" *ngIf="sets.length > 0">
+      <div class="set-row" *ngFor="let set of sets">
+        <div class="set-info" [class.set-done]="set.done">
+          <div class="set-line">
+            <span class="set-number">Set {{ set.setNumber }}:</span>
+            <span class="set-details">{{ set.weight }}kg × {{ set.reps }} reps</span>
+          </div>
+        </div>
+  
+        <div class="set-actions">
+          <button class="icon-btn edit-btn" (click)="editSet(set)">
+            ✏️
+          </button>
+          <button class="icon-btn delete-btn" (click)="deleteSet(set)">
+            🗑️
+          </button>
+        </div>
+      </div>
+    </section>
+  
+    <!-- Footer actions -->
+    <div class="footer-actions">
+      <button class="secondary-link" (click)="onAddExercise()">
+        + Add Exercise
+      </button>
+  
+      <button class="finish-btn" (click)="onFinishWorkout()">
+        ✅ Finish Workout
+      </button>
+    </div>
+  </div>
+  

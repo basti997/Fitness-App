@@ -1,0 +1,247 @@
+.workoutset-card {
+    background: #f9fafb;
+    border-radius: 18px;
+    padding: 1.5rem;
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.18);
+    max-width: 900px;
+    margin: 1rem auto 2rem;
+  }
+  
+  /* Header */
+  .exercise-header {
+    background: linear-gradient(90deg, #34d399, #60a5fa, #f472b6);
+    border-radius: 16px;
+    padding: 1.25rem 1.5rem;
+    color: #111827;
+    margin-bottom: 1.5rem;
+  }
+  
+  .exercise-title-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  
+  .exercise-status-icon {
+    font-size: 1.5rem;
+  }
+  
+  .exercise-title {
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 700;
+  }
+  
+  .sets-done {
+    font-weight: 500;
+  }
+  
+  .exercise-subtitle {
+    margin: 0.4rem 0 0;
+    font-size: 0.95rem;
+    color: #111827;
+  }
+  
+  /* Add Set section */
+  .add-set-section {
+    margin-bottom: 1.5rem;
+  }
+  
+  .section-title {
+    margin: 0 0 0.75rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #111827;
+  }
+  
+  .add-set-row {
+    display: grid;
+    grid-template-columns: 1.5fr 1.5fr auto;
+    gap: 1rem;
+    align-items: stretch;
+  }
+  
+  .input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+  
+  .input-label {
+    font-size: 0.9rem;
+    color: #6b7280;
+  }
+  
+  .set-input {
+    padding: 0.9rem 1rem;
+    border-radius: 14px;
+    border: 2px solid #e5e7eb;
+    font-size: 1.1rem;
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    background: #ffffff;
+  }
+  
+  .set-input:focus {
+    outline: none;
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.18);
+  }
+  
+  .btn {
+    border: none;
+    cursor: pointer;
+    border-radius: 999px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.2s;
+  }
+  
+  /* Purple Add Set button like your style */
+  .add-set-btn {
+    padding: 0.8rem 1.3rem;
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    color: white;
+    box-shadow: 0 10px 25px rgba(79, 70, 229, 0.35);
+    gap: 0.4rem;
+    min-width: 120px;
+  }
+  
+  .add-set-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 14px 30px rgba(79, 70, 229, 0.45);
+  }
+  
+  .btn-plus {
+    font-size: 1.1rem;
+  }
+  
+  .btn-text {
+    font-size: 1rem;
+  }
+  
+  /* Sets list */
+  .sets-list {
+    margin-top: 0.75rem;
+  }
+  
+  .set-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    padding: 0.85rem 1rem;
+    border-radius: 14px;
+    background: #f9fafb;
+    box-shadow: 0 6px 15px rgba(15, 23, 42, 0.06);
+    margin-bottom: 0.75rem;
+  }
+  
+  .set-info {
+    font-size: 1rem;
+  }
+  
+  .set-info.set-done {
+    background: #eef2ff;
+    border-radius: 12px;
+    padding: 0.4rem 0.6rem;
+  }
+  
+  .set-line {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    align-items: baseline;
+  }
+  
+  .set-number {
+    font-weight: 700;
+  }
+  
+  .set-details {
+    color: #111827;
+  }
+  
+  .set-actions {
+    display: flex;
+    gap: 0.4rem;
+  }
+  
+  .icon-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 999px;
+    border: none;
+    cursor: pointer;
+    background: #4b5563;
+    color: white;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.25);
+    transition: transform 0.15s, box-shadow 0.15s, background 0.2s;
+  }
+  
+  .icon-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 12px 24px rgba(15, 23, 42, 0.35);
+  }
+  
+  .delete-btn {
+    background: #9ca3af;
+  }
+  
+  /* Footer actions */
+  .footer-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: center;
+    margin-top: 2rem;
+  }
+  
+  .secondary-link {
+    background: #eff6ff;
+    color: #2563eb;
+    border-radius: 999px;
+    padding: 0.7rem 1.6rem;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+    max-width: 260px;
+  }
+  
+  .secondary-link:hover {
+    background: #dbeafe;
+  }
+  
+  .finish-btn {
+    background: #22c55e;
+    color: white;
+    border-radius: 999px;
+    padding: 0.95rem 3rem;
+    border: none;
+    font-weight: 700;
+    font-size: 1.1rem;
+    cursor: pointer;
+    box-shadow: 0 14px 30px rgba(34, 197, 94, 0.45);
+  }
+  
+  .finish-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 18px 36px rgba(34, 197, 94, 0.55);
+  }
+  
+  @media (max-width: 768px) {
+    .add-set-row {
+      grid-template-columns: 1fr;
+    }
+    
+    .footer-actions {
+      align-items: stretch;
+    }
+  }
+  

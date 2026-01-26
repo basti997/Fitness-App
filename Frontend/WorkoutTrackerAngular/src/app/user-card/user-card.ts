@@ -1,8 +1,9 @@
 import { User } from '../model/user';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { output } from '@angular/core';
+import { UserService } from '../services/user-service';
 
 @Component({
   selector: 'app-user-card',
@@ -11,6 +12,19 @@ import { output } from '@angular/core';
   styleUrl: './user-card.css',
 })
 export class UserCard {
+  constructor(private userService: UserService){}
+  users: User [] = [];
+  ngOnInIt(): void{
+    this.userService.getUsers().subscribe(
+      users => {
+        console.log('API response:', users);
+        this.users = users;
+      },
+      error => {
+        console.error('API error:', error);
+      }
+    );
+  }
   showUserPopup = false;
   userChange = output<User | null>();
   isLoggedIn = false;

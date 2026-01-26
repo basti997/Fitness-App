@@ -230,121 +230,65 @@
 </head>
 <body>
     <div class="container">
+        <!-- Header -->
         <div class="header">
-            <h1>🏋️ Workout Tracker</h1>
-            <p>Track your progress. Build your strength.</p>
+          <h1>{{ title() }}</h1>
+          <p>Track your progress. Build your strength.</p>
         </div>
-        
+      
+        <!-- User Section -->
         <div class="section">
-            <h2>👤 User Information</h2>
-            <div class="user-info">
-                <p><app-user-card
-                    (userChange)="onUserChanged($event)">
-                </app-user-card></p>
-                <!-- <p><strong>Goal:</strong> <span>Strength Training</span></p> -->
-            </div>
-            
-            <div style="text-align: center; margin-top: 20px;">
-                <button class="btn" class="btn big-start" (click)="startNewWorkout()" style="font-size: 18px; padding: 15px 40px;">
-                    🚀 Start New Workout
-                </button>
-                <!-- DEBUG: remove later -->
-<div style="padding: 10px; background: #f0f0f0; font-size: 12px;">
-    DEBUG: user={{ user?.user_id }} | activeWorkout={{ activeWorkout?.workout_id }}
-  </div>
-            </div>
+          <h2>👤 User Information</h2>
+          <app-user-card (userChange)="onUserChanged($event)"></app-user-card>
+          
+          <div style="text-align: center; margin-top: 20px;">
+            <button class="btn" (click)="startNewWorkout()" 
+                    [disabled]="!user">
+              🚀 Start New Workout
+            </button>
+          </div>
         </div>
-        
+      
+        <!-- Active Workout -->
+        <div class="section" *ngIf="activeWorkout">
+          <h2>📋 Current Workout</h2>
+          
+          <app-workout-card
+            [workout]="activeWorkout"
+            [notes]="activeNotes"
+            (notesChange)="onActiveNotesChange($event)"
+            (finish)="finishActiveWorkout()">
+          </app-workout-card>
+      
+          <!-- WorkoutSetTracker: Your set tracker! -->
+          <app-workoutset-tracker 
+            [workout]="activeWorkout"
+            [user]="user">
+          </app-workoutset-tracker>
+        </div>
+      
+        <!-- Past Workouts -->
+        <div class="section" *ngIf="!activeWorkout">
+          <h2>📜 Workout History</h2>
+          <app-workout-list [workouts]="workouts"></app-workout-list>
+        </div>
+      
+        <!-- Progress Stats (Static for now)
         <div class="section">
-            <h2>💪 Select Muscle Group</h2>
-            <div class="muscle-groups">
-                <div class="muscle-group">
-                    <h3>Chest</h3>
-                    <p>Bench Press, Flyes</p>
-                </div>
-                <div class="muscle-group">
-                    <h3>Back</h3>
-                    <p>Pull-ups, Rows</p>
-                </div>
-                <div class="muscle-group">
-                    <h3>Legs</h3>
-                    <p>Squats, Deadlifts</p>
-                </div>
-                <div class="muscle-group">
-                    <h3>Shoulders</h3>
-                    <p>Press, Raises</p>
-                </div>
-                <div class="muscle-group">
-                    <h3>Arms</h3>
-                    <p>Curls, Tricep dips</p>
-                </div>
+          <h2>📊 Progress</h2>
+          <div class="progress-grid">
+            <div class="progress-card">
+              <div class="progress-number">{{ workouts.length }}</div>
+              <p>Total Workouts</p>
             </div>
-        </div>
-
-        <div class="section">
-            <h2>📋 Current Workout: Chest Day</h2>
-            <app-workout-card
-                [workout]="activeWorkout"
-                [notes]="activeNotes"
-                (notesChange)="onActiveNotesChange($event)"
-                (finish)="finishActiveWorkout()">
-            </app-workout-card>
-            <app-workout-list [workouts]="workouts"></app-workout-list>
-            <div class="current-workout">
-                <h3>✅ Bench Press (3 sets done)</h3>
-                <p>Today's best: 80kg x 8 reps</p>
+            <div class="progress-card">
+              <div class="progress-number">{{ user?.totalSets || 0 }}</div>
+              <p>Total Sets Logged</p>
             </div>
-            
-            <div class="sets-container">
-                <h4>Add Set</h4>
-                <div class="set-entry">
-                    <div class="set-input">
-                        <input type="number" placeholder="Weight (kg)" value="75">
-                        <input type="number" placeholder="Reps" value="10">
-                        <button class="btn" style="padding: 10px;">➕ Add Set</button>
-                    </div>
-                </div>
-                
-                <div class="set-entry">
-                    <div style="flex: 1;">
-                        <strong>Set 1:</strong> 75kg × 10 reps
-                    </div>
-                    <div style="display: flex; gap: 10px;">
-                        <button class="btn btn-secondary" style="padding: 8px 12px;">✏️</button>
-                        <button class="btn btn-secondary" style="padding: 8px 12px;">🗑️</button>
-                    </div>
-                </div>
-            </div>
-            
-            <div style="text-align: center; margin-top: 30px;">
-                <button class="btn" style="background: #28a745; font-size: 18px; padding: 15px 40px;">
-                    ✅ Finish Workout
-                </button>
-            </div>
-        </div>
-        
-        <div class="section">
-            <h2>📊 Progress Overview</h2>
-            <div class="progress-grid">
-                <div class="progress-card">
-                    <div class="progress-number">12</div>
-                    <p>Workouts this month</p>
-                </div>
-                <div class="progress-card">
-                    <div class="progress-number">+15%</div>
-                    <p>Strength gain</p>
-                </div>
-                <div class="progress-card">
-                    <div class="progress-number">5</div>
-                    <p>Exercises mastered</p>
-                </div>
-                <div class="progress-card">
-                    <div class="progress-number">47</div>
-                    <p>Total sets logged</p>
-                </div>
-            </div>
-        </div>
-    </div>
+          </div>
+        </div> -->
+      </div>
+      
 </body>
 </html>
 

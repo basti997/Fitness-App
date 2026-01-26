@@ -1,17 +1,19 @@
 import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 import { User } from './model/user';
 import { Workout } from './model/workout';
 import { UserCard } from './user-card/user-card';
 import { WorkoutCard } from './workout-card/workout-card';
 import { WorkoutList } from './workout-list/workout-list';
+import { WorkoutsetTracker } from "./workoutset-tracker/workoutset-tracker";
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, CommonModule, UserCard, WorkoutCard, WorkoutList],   // put imports here, not above
+  imports: [RouterOutlet, CommonModule, UserCard, WorkoutCard, WorkoutList, WorkoutsetTracker, FormsModule],   // put imports here, not above
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
