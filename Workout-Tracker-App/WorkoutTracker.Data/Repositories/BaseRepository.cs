@@ -27,11 +27,20 @@ public class BaseRepository
     /// Returns TRUE if execution succeeded.
     /// </summary>
     protected bool InsertData(NpgsqlConnection conn, NpgsqlCommand cmd)
-    {
+{
+    try {
         conn.Open();
-        cmd.ExecuteNonQuery();
-        return true;
+        int rowsAffected = cmd.ExecuteNonQuery();  // ✅ Capture result!
+        return rowsAffected > 0;                  // ✅ TRUE only if rows inserted
     }
+    catch (Exception ex) {
+        Console.WriteLine($"Insert failed: {ex.Message}");  // ✅ Log errors!
+        return false;
+    }
+    finally {
+        conn?.Close();
+    }
+}
 
     /// <summary>
     /// Executes an UPDATE command.

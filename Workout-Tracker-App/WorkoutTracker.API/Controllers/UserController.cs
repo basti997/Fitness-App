@@ -5,95 +5,95 @@ using WorkoutTracker.Data.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-    [Route("api/[controller]")]
-    [ApiController]
-    public class UserController : ControllerBase
+[Route("api/[controller]")]
+[ApiController]
+public class UserController : ControllerBase
+{
+    protected UserRepository Repository { get; }
+
+    public UserController(UserRepository repository)
     {
-        protected UserRepository Repository { get; }
+        Repository = repository;
+    }
 
-        public UserController(UserRepository repository)
+    // GET api/user/{id}
+    [HttpGet("{id}")]
+    public ActionResult<User> GetUser([FromRoute] int id)
+    {
+        User user = Repository.GetUserById(id);
+        if (user == null)
         {
-            Repository = repository;
+            return NotFound();
+        }
+        return Ok(user);
+    }
+
+    // GET api/user
+    [HttpGet]
+    public ActionResult<IEnumerable<User>> GetUsers()
+    {
+        return Ok(Repository.GetUsers());
+    }
+
+    // POST api/user
+    [HttpPost]
+    public ActionResult Post([FromBody] User user)
+    {
+        if (user == null)
+        {
+            return BadRequest("User info not correct");
         }
 
-        // GET api/user/{id}
-        [HttpGet("{id}")]
-        public ActionResult<User> GetUser([FromRoute] int id)
+        bool status = Repository.InsertUser(user);
+        if (status)
         {
-            User user = Repository.GetUserById(id);
-            if (user == null)
-            {
-                return NotFound();
-            }
-            return Ok(user);
+            return Ok();
         }
 
-        // GET api/user
-        [HttpGet]
-        public ActionResult<IEnumerable<User>> GetUsers()
+        return BadRequest();
+    }
+
+    // PUT api/user
+    [HttpPut]
+    public ActionResult UpdateUser([FromBody] User user)
+    {
+        if (user == null)
         {
-            return Ok(Repository.GetUsers());
+            return BadRequest("User info not correct");
         }
 
-        // POST api/user
-        [HttpPost]
-        public ActionResult Post([FromBody] User user)
+        User existingUser = Repository.GetUserById(user.Id);
+        if (existingUser == null)
         {
-            if (user == null)
-            {
-                return BadRequest("User info not correct");
-            }
-
-            bool status = Repository.InsertUser(user);
-            if (status)
-            {
-                return Ok();
-            }
-
-            return BadRequest();
+            return NotFound($"User with id {user.Id} not found");
         }
 
-        // PUT api/user
-        [HttpPut]
-        public ActionResult UpdateUser([FromBody] User user)
+        bool status = Repository.UpdateUser(user);
+        if (status)
         {
-            if (user == null)
-            {
-                return BadRequest("User info not correct");
-            }
-
-            User existingUser = Repository.GetUserById(user.Id);
-            if (existingUser == null)
-            {
-                return NotFound($"User with id {user.Id} not found");
-            }
-
-            bool status = Repository.UpdateUser(user);
-            if (status)
-            {
-                return Ok();
-            }
-
-            return BadRequest("Something went wrong");
+            return Ok();
         }
 
-        // DELETE api/user/{id}
-        [HttpDelete("{id}")]
-        public ActionResult DeleteUser([FromRoute] int id)
+        return BadRequest("Something went wrong");
+    }
+
+    // DELETE api/user/{id}
+    [HttpDelete("{id}")]
+    public ActionResult DeleteUser([FromRoute] int id)
+    {
+        User existingUser = Repository.GetUserById(id);
+        if (existingUser == null)
         {
-            User existingUser = Repository.GetUserById(id);
-            if (existingUser == null)
-            {
-                return NotFound($"User with id {id} not found");
-            }
-
-            bool status = Repository.DeleteUser(id);
-            if (status)
-            {
-                return NoContent();
-            }
-
-            return BadRequest($"Unable to delete user with id {id}");
+            return NotFound($"User with id {id} not found");
         }
+
+        bool status = Repository.DeleteUser(id);
+        if (status)
+        {
+            return NoContent();
+        }
+
+        return BadRequest($"Unable to delete user with id {id}");
+    }
     }
 
