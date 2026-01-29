@@ -37,7 +37,7 @@ if (!this.user) return;
 
 this.activeWorkout = {
 workout_id: this.nextWorkoutId,
-user_id: this.user.user_id,
+user_id: this.user.Id,
 workout_date: new Date().toISOString(),
 notes: ''
 };
