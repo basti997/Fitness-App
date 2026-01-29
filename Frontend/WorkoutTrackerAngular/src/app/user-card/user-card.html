@@ -50,7 +50,7 @@
       </div>
 
       <div class="popup-actions">
-        <button type="submit" class="btn">Save</button>
+        <button type="submit" class="btn" (click)="saveUser(); $event.preventDefault()">Save Profile</button>
         <button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
       </div>
     </form>
