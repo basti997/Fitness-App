@@ -1,8 +1,10 @@
-import { Component, Output, EventEmitter, Input} from '@angular/core';
+import { Component, Output, EventEmitter, Input, OnInit} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Musclegroup } from '../model/musclegroup';
 import { ExerciseSelector } from "../exercise-selector/exercise-selector";
 import { Exercises } from '../model/exercises';
+import { MuscleGroupService } from '../services/muscle-group-service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-musclegroup-selector',
@@ -12,33 +14,34 @@ import { Exercises } from '../model/exercises';
   styleUrl: './musclegroup-selector.css',
 
 })
-export class MuscleGroupSelectorComponent {
+export class MuscleGroupSelector implements OnInit{
+  constructor(private MuscleGroupService: MuscleGroupService){}
+    muscleGroups: Musclegroup[] = [] // Initialized with an empty array
+    ngOnInit(): void{
+      this.MuscleGroupService.getMuscleGroups().subscribe(
+        muscleGroups => {
+          console.log('API response:', muscleGroups);
+          this.muscleGroups = muscleGroups;
+        },
+        error => {
+          console.error('API error:', error);
+        }
+      );
+    }
+  
   @Output() exerciseAdded = new EventEmitter<any>();  // Exercise from ExerciseSelector
   @Output() overlayClosed = new EventEmitter<void>();
 
-  muscleGroups: Musclegroup[] = [];
   selectedMuscleGroupId: number | null = null;
   showExercises = false;
   loading = false;
   isOverlayOpen = false;
   allExercises: Exercises[] = [];
 
-  async openOverlay(): Promise<void> {
+  openOverlay(): void {  // No async needed
     this.isOverlayOpen = true;
-    this.loading = true;
+    this.muscleGroups = this.muscleGroups;  // ✅ Instant, cached
     document.body.style.overflow = 'hidden';
-    
-    try {
-      // Load from your SQL MuscleGroups table
-      const response = await fetch('/api/musclegroups');  // Add this endpoint
-      this.muscleGroups = await response.json();
-    } catch (error) {
-      console.error('Failed to load muscle groups:', error);
-      // Fallback to derived from exercises if no /api/musclegroups
-      await this.loadFromExercises();
-    } finally {
-      this.loading = false;
-    }
   }
 
   private async loadFromExercises(): Promise<void> {

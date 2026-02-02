@@ -1,51 +1,33 @@
-<div class="overlay-backdrop" *ngIf="isOverlayOpen" (click)="closeOverlay()"></div>
+<div class="exercise-content">
 
-<div class="exercise-overlay" *ngIf="isOverlayOpen">
   <div class="overlay-header">
     <h2>Add Exercise</h2>
-    <button class="close-btn" (click)="closeOverlay()">&times;</button>
   </div>
 
   <div class="overlay-content">
-    <!-- Loading -->
-    <div class="loading" *ngIf="loading">
-      <div class="spinner"></div>
-      Loading...
-    </div>
-
-    <!-- Muscle Groups -->
-    <div class="muscle-grid" *ngIf="!loading && !selectedMuscleGroupId">
-      <div *ngFor="let group of muscleGroups" 
-           class="muscle-card"
-           (click)="selectMuscleGroup(group.muscleGroupId)">
-        <h3>{{ group.name }}</h3>
-      </div>
-    </div>
+    
 
     <!-- Exercises -->
-    <div *ngIf="!loading && selectedMuscleGroupId" class="exercises-section">
-      <button class="back-btn" (click)="selectedMuscleGroupId = null">
-        ← Back to Muscle Groups
-      </button>
-      
-      <h3>{{ getSelectedGroupName() }} Exercises</h3>
-      
-      <div *ngIf="exercises.length === 0" class="no-exercises">
-        No exercises found
-      </div>
-      
-      <div class="exercises-list">
-        <div *ngFor="let exercise of exercises" 
-             class="exercise-item"
-             [class.selected]="exercise.exerciseId === selectedExercise?.exerciseId"
-             (click)="selectExercise(exercise)">
-          {{ exercise.name }}
+    <div *ngIf="selectedMuscleGroupId !==null" class="exercises-section">
+
+  <h3>Exercises</h3>
+
+  <div *ngIf="exercises().length === 0" class="no-exercises">
+    No exercises for this group
+  </div>
+
+  <div class="exercises-grid">
+    <div *ngFor="let exercise of exercises()" class="exercise-card"
+         [class.selected]="exercise === selectedExercise"
+         (click)="selectExercise(exercise)">
+      <h4>{{ exercise.name }}</h4>
+      <p><strong>Muscle Group ID (FK):</strong> {{ exercise.muscleGroupId }}</p>
+      <p>{{ exercise.description }}</p>
+      <small>ID: {{ exercise.exerciseId }}</small>
         </div>
       </div>
-
-      <button class="add-btn" 
-              [disabled]="!selectedExercise"
-              (click)="addExercise()">
+      
+      <button class="add-btn" [disabled]="!selectedExercise" (click)="addExercise()">
         Add {{ selectedExercise?.name || 'Exercise' }}
       </button>
     </div>

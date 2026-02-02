@@ -1,9 +1,9 @@
 export interface User {
     // src/app/models/user.model.ts
-    Id: number;           // primary key
-    Username: string;          // unique, not null
-    Email: string;             // unique, not null
-    PasswordHash: string;     // not null, hashed password
-    CreatedAt: string;        // timestamp with time zone, ISO string
+    id: number;           // primary key
+    userName: string;          // unique, not null
+    eMail: string;             // unique, not null
+    passwordHash: string;     // not null, hashed password
+    createdAt: string;        // timestamp with time zone, ISO string
   
 }

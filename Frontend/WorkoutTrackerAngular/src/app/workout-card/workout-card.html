@@ -23,10 +23,20 @@
       </button>
       
       <app-musclegroup-selector 
-          #muscleGroupSelector
-          (exerciseAdded)="onExerciseAdded($event)"
-          (overlayClosed)="onOverlayClosed()">
+          (exerciseAdded)="onExerciseAdded($event)">
       </app-musclegroup-selector>
+      <div *ngFor="let ex of exerciseBlocks" class="exercise-block">
+        <h3>{{ ex.name }}</h3>
+      
+        <app-workoutset-tracker
+          [workout]="workout"
+          [user]="user"
+          [exerciseName]="ex.name"
+          [exerciseId]="ex.exerciseId"
+          (addExercise)="addExercises()">
+        </app-workoutset-tracker>
+      </div>
+
   </div>
 
     <div class="actions"> 

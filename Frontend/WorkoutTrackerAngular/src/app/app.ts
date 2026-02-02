@@ -18,6 +18,9 @@ import { WorkoutsetTracker } from "./workoutset-tracker/workoutset-tracker";
   styleUrl: './app.css'
 })
 export class App {
+addExerciseToWorkout($event: Event) {
+throw new Error('Method not implemented.');
+}
   protected readonly title = signal('WorkoutTrackerAngular');
 
 user: User | null = null;
@@ -27,6 +30,7 @@ private nextWorkoutId = 1;
 
 activeWorkout: Workout | null = null;
 activeNotes = '';
+showMuscleSelector: any;
 
 onUserChanged(user: User | null) {
 this.user = user;
@@ -37,7 +41,7 @@ if (!this.user) return;
 
 this.activeWorkout = {
 workout_id: this.nextWorkoutId,
-user_id: this.user.Id,
+user_id: this.user.id,
 workout_date: new Date().toISOString(),
 notes: ''
 };

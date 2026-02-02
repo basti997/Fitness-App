@@ -193,6 +193,42 @@
     background: #9ca3af;
   }
   
+  .edit-set-row,
+.edit-set-row * {
+  pointer-events: auto !important;
+}
+
+.set-input {
+  pointer-events: auto !important;
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+.edit-set-row {
+  position: relative;
+  z-index: 50;
+}
+
+/* Ensure edit controls are above everything in the row */
+.set-row {
+  position: relative;
+}
+
+.edit-set-row {
+  position: relative;
+  z-index: 50;
+}
+
+.edit-set-row .btn,
+.edit-set-row .set-input {
+  position: relative;
+  z-index: 60;
+  pointer-events: auto;
+}
+
+.set-row { position: relative; }
+.edit-set-row { position: relative; z-index: 9999; }
+.edit-set-row button, .edit-set-row input { position: relative; z-index: 10000; pointer-events: auto; }
   /* Footer actions */
   .footer-actions {
     display: flex;

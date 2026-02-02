@@ -9,7 +9,6 @@
   <div class="overlay-content">
     <!-- Loading -->
     <div class="loading" *ngIf="loading">
-      <div class="spinner"></div>
       Loading...
     </div>
 
@@ -27,18 +26,18 @@
     </div>
 
     <!-- Exercises View -->
-    <div *ngIf="showExercises" class="exercises-view">
+    <div *ngIf="!loading && showExercises" class="exercises-view">
       <button class="back-btn" (click)="backToGroups()">
         ← Back to Muscle Groups
       </button>
 
-      <!-- Embed ExerciseSelector -->
+      <!-- Pass selected group to child -->
       <app-exercise-selector 
-        [initialMuscleGroupId]="selectedMuscleGroupId!"
+        *ngIf="selectedMuscleGroupId !== null"
+        [initialMuscleGroupId]="selectedMuscleGroupId"
         (exerciseAdded)="onExerciseSelected($event)"
         (overlayClosed)="backToGroups()">
       </app-exercise-selector>
     </div>
   </div>
 </div>
-

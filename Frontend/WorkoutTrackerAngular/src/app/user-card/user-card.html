@@ -1,12 +1,12 @@
 <div class="user-card-wrapper">
   <div class="user-summary" *ngIf="lastSavedUser; else notLoggedIn">
     <div class="avatar-circle">
-      {{ lastSavedUser.Username.charAt(0) | uppercase }}
+      {{ lastSavedUser.userName.charAt(0) | uppercase }}
     </div>
     <div class="user-summary-text">
-      <div class="user-summary-name">{{ lastSavedUser.Username }}</div>
+      <div class="user-summary-name">{{ lastSavedUser.userName }}</div>
       <div class="user-summary-meta">
-        ID: {{ lastSavedUser.Id }} · Joined {{ lastSavedUser.CreatedAt | date:'mediumDate' }}
+        ID: {{ lastSavedUser.id }} · Joined {{ lastSavedUser.createdAt | date:'mediumDate' }}
       </div>
     </div>
   </div>
@@ -31,22 +31,22 @@
     <form (ngSubmit)="saveUser()">
       <div class="form-row">
         <label>Username:</label>
-        <input type="text" [(ngModel)]="user.Username" name="username" required>
+        <input type="text" [(ngModel)]="user.userName" name="username" required>
       </div>
 
       <div class="form-row">
         <label>Email:</label>
-        <input type="email" [(ngModel)]="user.Email" name="email" required>
+        <input type="email" [(ngModel)]="user.eMail" name="email" required>
       </div>
 
       <div class="form-row">
         <label>Password:</label>
-        <input type="password" [(ngModel)]="user.PasswordHash" name="password_hash">
+        <input type="password" [(ngModel)]="user.passwordHash" name="password_hash">
       </div>
 
       <div class="form-row">
         <label>Created At (auto):</label>
-        <input type="text" [value]="user.CreatedAt | date:'yyyy-MM-dd HH:mm:ss'" disabled>
+        <input type="text" [value]="user.createdAt | date:'yyyy-MM-dd HH:mm:ss'" disabled>
       </div>
 
       <div class="popup-actions">

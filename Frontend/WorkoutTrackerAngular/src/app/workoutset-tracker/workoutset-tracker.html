@@ -13,6 +13,9 @@
       <p class="exercise-subtitle" *ngIf="todaysBestText">
         {{ todaysBestText }}
       </p>
+      <button type="button" (click)="debugClick()" style="padding:12px; background:red; color:white;">
+        TEST CLICK
+      </button>
     </div>
   
     <!-- Add Set section -->
@@ -50,21 +53,41 @@
     <!-- Existing sets -->
     <section class="sets-list" *ngIf="sets.length > 0">
       <div class="set-row" *ngFor="let set of sets">
-        <div class="set-info" [class.set-done]="set.done">
-          <div class="set-line">
-            <span class="set-number">Set {{ set.setNumber }}:</span>
-            <span class="set-details">{{ set.weight }}kg × {{ set.reps }} reps</span>
-          </div>
-        </div>
-  
-        <div class="set-actions">
-          <button class="icon-btn edit-btn" (click)="editSet(set)">
-            ✏️
-          </button>
-          <button class="icon-btn delete-btn" (click)="deleteSet(set)">
-            🗑️
-          </button>
-        </div>
+        
+
+<!-- NORMAL VIEW -->
+<ng-container *ngIf="editingSetId !== set.setId; else editRow">
+  <div class="set-info" [class.set-done]="set.done">
+    <div class="set-line">
+      <span class="set-number">Set {{ set.setNumber }}:</span>
+      <span class="set-details">{{ set.weight }}kg × {{ set.reps }} reps</span>
+    </div>
+  </div>
+
+  <div class="set-actions">
+    <button class="icon-btn edit-btn" (click)="startEdit(set)">✏️</button>
+    <button class="icon-btn delete-btn" (click)="deleteSet(set)">🗑️</button>
+  </div>
+</ng-container>
+
+<ng-template #editRow>
+  <div class="set-info">
+    <div class="edit-set-row">
+      <div class="input-group">
+        <label class="input-label">Weight (kg)</label>
+        <input type="number" class="set-input" [(ngModel)]="editWeight" min="0" />
+      </div>
+
+      <div class="input-group">
+        <label class="input-label">Reps</label>
+        <input type="number" class="set-input" [(ngModel)]="editReps" min="0" />
+      </div>
+
+      <button type="button" class="btn add-set-btn" (click)="saveEdit(set)">Save</button>
+      <button type="button" class="btn cancel-edit-btn" (click)="cancelEdit()">Cancel</button>
+    </div>
+  </div>
+</ng-template>
       </div>
     </section>
   
@@ -74,9 +97,6 @@
         + Add Exercise
       </button>
   
-      <button class="finish-btn" (click)="onFinishWorkout()">
-        ✅ Finish Workout
-      </button>
     </div>
   </div>
   

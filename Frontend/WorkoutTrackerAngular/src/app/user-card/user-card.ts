@@ -12,7 +12,7 @@ import { UserService } from '../services/user-service';
   templateUrl: './user-card.html',
   styleUrl: './user-card.css',
 })
-export class UserCard {
+export class UserCard implements OnInit{
   constructor(private userService: UserService){}
   users: User [] = [];
   ngOnInit(): void{
@@ -36,11 +36,11 @@ export class UserCard {
   lastSavedUser: User | null = null;
 
   user: User = {
-  Id: 0,
-  Username: '',
-  Email: '',
-  PasswordHash: '',
-  CreatedAt: ''
+  id: 0,
+  userName: '',
+  eMail: '',
+  passwordHash: '',
+  createdAt: ''
   };
 
   get loginButtonLabel(): string {
@@ -52,44 +52,40 @@ export class UserCard {
   if (this.lastSavedUser) {
     // Start from a fresh new profile (new ID, cleared fields)
     this.user = {
-    Id: this.nextUserId,
-    Username: '',
-    Email: '',
-    PasswordHash: '',
-    CreatedAt: new Date().toISOString()
+    id: this.nextUserId,
+    userName: '',
+    eMail: '',
+    passwordHash: '',
+    createdAt: new Date().toISOString()
     };
     } else {
     // First time: also start fresh
     this.user = {
-    Id: this.nextUserId,
-    Username: '',
-    Email: '',
-    PasswordHash: '',
-    CreatedAt: new Date().toISOString()
+    id: this.nextUserId,
+    userName: '',
+    eMail: '',
+    passwordHash: '',
+    createdAt: new Date().toISOString()
     };
     }
     this.showUserPopup = true;
     }
 
     saveUser() {
-      if (!this.user.Username || !this.user.Email) {
-        alert('Username and Email required!');
-        return;
-    }
-      const user = {
-        Username: this.user.Username,      
-        Email: this.user.Email,
-        PasswordHash: this.user.PasswordHash || 'hash123'
+      const userToCreate = {
+        Username: this.user.userName,      
+        Email: this.user.eMail,
+        PasswordHash: this.user.passwordHash
       };
     
       // ✅ CALL YOUR SERVICE → Backend!
-      this.userService.createUser(user as any).subscribe({
+      this.userService.createUser(userToCreate as any).subscribe({
         next: (response) => {
           console.log('✅ Backend saved user!', response);
           
           // Update local state
           this.isLoggedIn = true;
-          this.lastSavedUser = { ...this.user, Id: 0 }; // Backend gives Id next load
+          this.lastSavedUser = { ...this.user, id: 0 }; // Backend gives Id next load
           this.nextUserId++;
           this.showUserPopup = false;
           this.userChange.emit(this.lastSavedUser);
