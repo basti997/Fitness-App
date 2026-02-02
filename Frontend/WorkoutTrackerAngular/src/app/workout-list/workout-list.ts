@@ -9,5 +9,7 @@ import { Workout } from '../model/workout';
   styleUrl: './workout-list.css',
 })
 export class WorkoutList {
-@Input() workouts: Workout[] = [];
+@Input() workouts: Workout[] = [
+  
+];
 }

@@ -35,45 +35,6 @@
   }
 }
 
-/* COMPACT FORM LAYOUT */
-.form-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 18px;  /* Tighter spacing */
-  margin: 16px 0 20px 0;  /* Less top/bottom margin */
-}
-
-/* FIELD HEIGHT CONSISTENCY */
-.form-field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.form-field input {
-  height: 52px;          /* FIXED HEIGHT = perfect alignment */
-  padding: 0 20px;       /* Consistent padding */
-  font-size: 16px;
-  border: 2px solid #e9ecef;
-  border-radius: 12px;
-  box-sizing: border-box;
-  transition: all 0.2s ease;
-}
-
-.form-field input:focus {
-  height: 52px;          /* STAYS SAME HEIGHT */
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-}
-
-/* COMPACT HEADER */
-.popup-window h2 {
-  margin: 0 0 8px 0;     /* Tighter spacing */
-  font-size: 24px;
-  font-weight: 700;
-  text-align: center;
-  color: #1a1a1a;
-}
 
 /* YOUR EXACT BUTTON STYLE - Replace existing .btn rules */
 .btn {
