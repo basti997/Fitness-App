@@ -18,19 +18,23 @@ using Microsoft.AspNetCore.Mvc;
     //-----------------------
     //Better customer journey
     //--------------------
-      // POST api/workoutset/create
-    [HttpPost]
-    public ActionResult AddSet([FromBody] WorkoutSet ws)
-    {
-        if (ws == null || ws.WorkoutId <= 0 || ws.ExerciseId <= 0)
+    // POST api/workoutset
+        [HttpPost]
+        public ActionResult Post([FromBody] WorkoutSet workoutSet)
         {
-            return BadRequest("WorkoutSet info not correct");
-        }
+            if (workoutSet == null || workoutSet.WorkoutId <= 0 || workoutSet.ExerciseId <= 0)
+            {
+                return BadRequest("WorkoutSet info not correct");
+            }
 
-        bool status = Repository.InsertWorkoutSet(ws);
-        if (status) return Ok();
-        return BadRequest();
-    }
+            bool status = Repository.InsertWorkoutSet(workoutSet);
+            if (status)
+            {
+                return Ok();
+            }
+
+            return BadRequest();
+        }
 
     // GET api/workoutset/byWorkout/{workoutId}
     [HttpGet("byWorkout/{workoutId}")]
@@ -71,24 +75,6 @@ using Microsoft.AspNetCore.Mvc;
         public ActionResult<IEnumerable<WorkoutSet>> GetWorkoutSets()
         {
             return Ok(Repository.GetWorkoutSets());
-        }
-
-        // POST api/workoutset
-        [HttpPost("create")]
-        public ActionResult Post([FromBody] WorkoutSet workoutSet)
-        {
-            if (workoutSet == null)
-            {
-                return BadRequest("WorkoutSet info not correct");
-            }
-
-            bool status = Repository.InsertWorkoutSet(workoutSet);
-            if (status)
-            {
-                return Ok();
-            }
-
-            return BadRequest();
         }
 
         // PUT api/workoutset

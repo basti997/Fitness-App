@@ -81,34 +81,6 @@ using NpgsqlTypes;
         }
 
         // --------------------------------------------------------------------
-        // INSERT WORKOUT
-        // --------------------------------------------------------------------
-        public bool InsertWorkout(Workout w)
-        {
-            NpgsqlConnection dbConn = null;
-            try
-            {
-                dbConn = new NpgsqlConnection(ConnectionString);
-
-                var cmd = dbConn.CreateCommand();
-                cmd.CommandText = @"
-                    INSERT INTO Workouts (user_id, workout_date, notes)
-                    VALUES (@user_id, @workout_date, @notes)
-                ";
-
-                cmd.Parameters.AddWithValue("@user_id", NpgsqlDbType.Integer, w.UserId);
-                cmd.Parameters.AddWithValue("@workout_date", NpgsqlDbType.TimestampTz, w.WorkoutDate);
-                cmd.Parameters.AddWithValue("@notes", NpgsqlDbType.Text, (object?)w.Notes ?? DBNull.Value);
-
-                return InsertData(dbConn, cmd);
-            }
-            finally
-            {
-                dbConn?.Close();
-            }
-        }
-
-        // --------------------------------------------------------------------
         // UPDATE WORKOUT
         // --------------------------------------------------------------------
         public bool UpdateWorkout(Workout w)

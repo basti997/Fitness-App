@@ -310,17 +310,17 @@ public class WorkoutSetRepository : BaseRepository
             dbConn = new NpgsqlConnection(ConnectionString);
 
             var cmd = dbConn.CreateCommand();
-            cmd.CommandText = "select * from workoutset where id = @id";
+            cmd.CommandText = "select * from WorkoutSets where set_id = @id";
             cmd.Parameters.Add("@id", NpgsqlDbType.Integer).Value = id;
 
             var data = GetData(dbConn, cmd);
 
             if (data != null && data.Read())
             {
-                return new WorkoutSet(Convert.ToInt32(data["id"]))
+                return new WorkoutSet(Convert.ToInt32(data["set_id"]))
                 {
-                    WorkoutId = Convert.ToInt32(data["workoutid"]),
-                    ExerciseId = Convert.ToInt32(data["exerciseid"]),
+                    WorkoutId = Convert.ToInt32(data["workout_id"]),
+                    ExerciseId = Convert.ToInt32(data["exercise_id"]),
                     SetNumber = Convert.ToInt32(data["set_number"]),
                     Weight = Convert.ToDouble(data["weight"]),
                     Reps = Convert.ToInt32(data["reps"])
@@ -348,7 +348,7 @@ public class WorkoutSetRepository : BaseRepository
                 dbConn = new NpgsqlConnection(ConnectionString);
 
                 var cmd = dbConn.CreateCommand();
-                cmd.CommandText = "select * from workoutset";
+                cmd.CommandText = "select * from WorkoutSets";
 
                 var data = GetData(dbConn, cmd);
 
@@ -356,10 +356,10 @@ public class WorkoutSetRepository : BaseRepository
                 {
                     while (data.Read())
                     {
-                        WorkoutSet ws = new WorkoutSet(Convert.ToInt32(data["id"]))
+                        WorkoutSet ws = new WorkoutSet(Convert.ToInt32(data["set_id"]))
                         {
-                            WorkoutId = Convert.ToInt32(data["workoutid"]),
-                            ExerciseId = Convert.ToInt32(data["exerciseid"]),
+                            WorkoutId = Convert.ToInt32(data["workout_id"]),
+                            ExerciseId = Convert.ToInt32(data["exercise_id"]),
                             SetNumber = Convert.ToInt32(data["set_number"]),
                             Weight = Convert.ToDouble(data["weight"]),
                             Reps = Convert.ToInt32(data["reps"])
@@ -383,26 +383,25 @@ public class WorkoutSetRepository : BaseRepository
         public bool InsertWorkoutSet(WorkoutSet ws)
         {
             NpgsqlConnection dbConn = null;
-
             try
             {
                 dbConn = new NpgsqlConnection(ConnectionString);
+                dbConn.Open();
 
                 var cmd = dbConn.CreateCommand();
                 cmd.CommandText =
-                    @"insert into workoutset
-                      (workoutid, exerciseid, set_number, weight, repetitions)
+                    @"insert into WorkoutSets
+                      (workout_id, exercise_id, set_number, weight, reps)
                       values
-                      (@workoutid, @exerciseid, @set_number, @weight, @repetitions)";
+                      (@workout_id, @exercise_id, @set_number, @weight, @reps)";
 
-                cmd.Parameters.AddWithValue("@workoutid", NpgsqlDbType.Integer, ws.WorkoutId);
-                cmd.Parameters.AddWithValue("@exerciseid", NpgsqlDbType.Integer, ws.ExerciseId);
+                cmd.Parameters.AddWithValue("@workout_id", NpgsqlDbType.Integer, ws.WorkoutId);
+                cmd.Parameters.AddWithValue("@exercise_id", NpgsqlDbType.Integer, ws.ExerciseId);
                 cmd.Parameters.AddWithValue("@set_number", NpgsqlDbType.Integer, ws.SetNumber);
-                cmd.Parameters.AddWithValue("@weight", NpgsqlDbType.Double, ws.Weight);
-                cmd.Parameters.AddWithValue("@repetitions", NpgsqlDbType.Integer, ws.Reps);
+                cmd.Parameters.AddWithValue("@weight", NpgsqlDbType.Numeric, ws.Weight);
+                cmd.Parameters.AddWithValue("@reps", NpgsqlDbType.Integer, ws.Reps);
 
-                bool result = InsertData(dbConn, cmd);
-                return result;
+                return cmd.ExecuteNonQuery() == 1;
             }
             finally
             {
@@ -419,19 +418,19 @@ public class WorkoutSetRepository : BaseRepository
 
             var cmd = dbConn.CreateCommand();
             cmd.CommandText =
-                @"update workoutset
-                  set workoutid=@workoutid,
-                      exerciseid=@exerciseid,
+                @"update WorkoutSets
+                  set workout_id=@workout_id,
+                      exercise_id=@exercise_id,
                       set_number=@set_number,
                       weight=@weight,
-                      repetitions=@repetitions
-                  where id = @id";
+                      reps=@reps
+                  where set_id = @id";
 
-            cmd.Parameters.AddWithValue("@workoutid", NpgsqlDbType.Integer, ws.WorkoutId);
-            cmd.Parameters.AddWithValue("@exerciseid", NpgsqlDbType.Integer, ws.ExerciseId);
+            cmd.Parameters.AddWithValue("@workout_id", NpgsqlDbType.Integer, ws.WorkoutId);
+            cmd.Parameters.AddWithValue("@exercise_id", NpgsqlDbType.Integer, ws.ExerciseId);
             cmd.Parameters.AddWithValue("@set_number", NpgsqlDbType.Integer, ws.SetNumber);
             cmd.Parameters.AddWithValue("@weight", NpgsqlDbType.Double, ws.Weight);
-            cmd.Parameters.AddWithValue("@repetitions", NpgsqlDbType.Integer, ws.Reps);
+            cmd.Parameters.AddWithValue("@reps", NpgsqlDbType.Integer, ws.Reps);
             cmd.Parameters.AddWithValue("@id", NpgsqlDbType.Integer, ws.Id);
 
             bool result = UpdateData(dbConn, cmd);
@@ -446,7 +445,7 @@ public class WorkoutSetRepository : BaseRepository
             var dbConn = new NpgsqlConnection(ConnectionString);
 
             var cmd = dbConn.CreateCommand();
-            cmd.CommandText = @"delete from workoutset where id = @id";
+            cmd.CommandText = @"delete from WorkoutSets where set_id = @id";
             cmd.Parameters.AddWithValue("@id", NpgsqlDbType.Integer, id);
 
             bool result = DeleteData(dbConn, cmd);

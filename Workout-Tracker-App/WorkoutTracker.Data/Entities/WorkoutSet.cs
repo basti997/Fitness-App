@@ -2,6 +2,7 @@ namespace WorkoutTracker.Data.Entities;
 
 public class WorkoutSet
 {
+    public WorkoutSet() {}
     public WorkoutSet(int id)
     {
         Id = id;

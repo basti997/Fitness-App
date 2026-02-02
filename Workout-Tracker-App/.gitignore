@@ -44,4 +44,4 @@ User-specific files
 Environment files
 
 .env
-appsettings.Development.json
+appsettings.Development.json.DS_Store

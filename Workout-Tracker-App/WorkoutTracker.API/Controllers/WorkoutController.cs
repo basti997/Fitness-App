@@ -52,7 +52,7 @@ public class WorkoutController : ControllerBase
             return BadRequest("Workout info not correct");
         }
 
-        bool status = Repository.InsertWorkout(workout);
+        bool status = Repository.CreateWorkout(workout);
 
         if (status)
         {
@@ -144,7 +144,7 @@ public class WorkoutController : ControllerBase
             workout.WorkoutDate = DateTime.UtcNow;
         }
 
-        bool status = Repository.InsertWorkout(workout);
+        bool status = Repository.CreateWorkout(workout);
         if (status)
         {
             return Ok();
