@@ -1,12 +1,19 @@
-// We need to tell our app about the new folder
-using WorkoutTracker.Data.Repositories; 
+using WorkoutTracker.Data.Repositories;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
-// --- This is the ONLY line we need to register our module ---
-// This "registers" our new Repository so the controller can use it.
-// --- End of change ---
 
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+// Configure CORS for local development
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowLocalDev", policy =>
+    {
+        policy.AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowAnyOrigin(); // restrict in production
+    });
+});
+
 builder.Services.AddOpenApi();
 
 builder.Services.AddScoped<UserRepository>();
@@ -16,11 +23,13 @@ builder.Services.AddScoped<MuscleGroupRepository>();
 builder.Services.AddScoped<ExerciseRepository>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "WorkoutTracker.API", Version = "v1" });
+});
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -29,20 +38,12 @@ if (app.Environment.IsDevelopment())
     app.UseDeveloperExceptionPage();
 }
 
-//app.UseHttpsRedirection();
+// IMPORTANT: enable CORS BEFORE routing/controllers so preflight (OPTIONS) is handled
+app.UseCors("AllowLocalDev");
+
 app.UseRouting();
-
-// MOVE CORS HERE (before Authorization and MapControllers)
-app.UseCors(policy =>
-{
-    policy.AllowAnyHeader();
-    policy.AllowAnyMethod();
-    policy.AllowAnyOrigin();
-});
-
 app.UseAuthorization();
 
-// Map controllers after CORS and Authorization
 app.MapControllers();
 
 app.Run();
