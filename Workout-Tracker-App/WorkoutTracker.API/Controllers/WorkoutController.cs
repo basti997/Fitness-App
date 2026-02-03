@@ -59,5 +59,24 @@ namespace WorkoutTracker.Api.Controllers
             if (id == 0) return StatusCode(500, "Could not create workout");
             return CreatedAtAction(nameof(GetById), new { id = id }, new { id = id });
         }
+          // PUT api/workout
+        [HttpPut]
+        public IActionResult Update([FromBody] Workout workout)
+        {
+            if (workout == null || workout.Id <= 0) return BadRequest();
+            var ok = _repo.UpdateWorkout(workout);
+            if (!ok) return StatusCode(500, "Could not update workout");
+            return NoContent(); // standard for successful PUT with no body
+        }
+
+        // DELETE api/workout/{id}
+        [HttpDelete("{id:int}")]
+        public IActionResult Delete(int id)
+        {
+            if (id <= 0) return BadRequest();
+            var ok = _repo.DeleteWorkout(id);
+            if (!ok) return NotFound(); // nothing deleted
+            return NoContent();
+        }
     }
 }

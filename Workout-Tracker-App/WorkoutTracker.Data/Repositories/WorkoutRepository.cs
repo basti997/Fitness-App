@@ -111,5 +111,68 @@ namespace WorkoutTracker.Data.Repositories
                 dbConn?.Close();
             }
         }
+        public bool UpdateWorkout(Workout workout)
+{
+    if (workout == null || workout.Id <= 0) return false;
+
+    NpgsqlConnection dbConn = null;
+    try
+    {
+        dbConn = new NpgsqlConnection(ConnectionString);
+        var cmd = dbConn.CreateCommand();
+        cmd.CommandText = @"
+            UPDATE Workouts
+            SET workout_date = @workout_date,
+                notes = @notes
+            WHERE workout_id = @id;
+        ";
+        cmd.Parameters.AddWithValue("@workout_date", NpgsqlDbType.TimestampTz, workout.WorkoutDate);
+        cmd.Parameters.AddWithValue("@notes", NpgsqlDbType.Text, (object?)workout.Notes ?? DBNull.Value);
+        cmd.Parameters.AddWithValue("@id", NpgsqlDbType.Integer, workout.Id);
+
+        dbConn.Open();
+        var rows = cmd.ExecuteNonQuery();
+        return rows > 0;
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"UpdateWorkout failed: {ex.Message}");
+        return false;
+    }
+    finally
+    {
+        dbConn?.Close();
+    }
+}
+
+public bool DeleteWorkout(int id)
+{
+    if (id <= 0) return false;
+
+    NpgsqlConnection dbConn = null;
+    try
+    {
+        dbConn = new NpgsqlConnection(ConnectionString);
+        var cmd = dbConn.CreateCommand();
+        cmd.CommandText = @"
+            DELETE FROM Workouts
+            WHERE workout_id = @id;
+        ";
+        cmd.Parameters.AddWithValue("@id", NpgsqlDbType.Integer, id);
+
+        dbConn.Open();
+        var rows = cmd.ExecuteNonQuery();
+        return rows > 0;
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"DeleteWorkout failed: {ex.Message}");
+        return false;
+    }
+    finally
+    {
+        dbConn?.Close();
+    }
+}
     }
 }
