@@ -26,14 +26,38 @@ export class App {
   user: User | null = null;
 
   workouts: Workout[] = [];
-  private nextWorkoutId = 1;
+  private nextWorkoutId = 1; // used only for allocating temp ids (if needed)
 
   activeWorkout: Workout | null = null;
+  // stable ID shown in the UI for the active workout. Set once when workout starts.
+  activeWorkoutDisplayId: number | string | null = null;
+
   activeNotes = '';
   showMuscleSelector: any;
 
   onUserChanged(user: User | null) {
     this.user = user;
+
+    if (this.user && this.user.id && this.user.id > 0) {
+      this.workoutService.getWorkoutsByUser(this.user.id).subscribe({
+        next: (wks: Workout[]) => {
+          this.workouts = wks.sort((a, b) => a.workoutDate < b.workoutDate ? 1 : -1);
+        },
+        error: (err) => {
+          console.error('Failed to load workouts for user:', err);
+          this.workouts = [];
+        }
+      });
+    } else {
+      this.workouts = [];
+    }
+  }
+
+  // allocate a negative temporary id (if server create fails)
+  private allocateTempId(): number {
+    const id = -this.nextWorkoutId;
+    this.nextWorkoutId++;
+    return id;
   }
 
   startNewWorkout() {
@@ -48,7 +72,7 @@ export class App {
       notes: ''
     };
 
-    // Persist the workout so workoutId is valid for sets
+    // Try creating on server; if it fails, allocate a negative temp id.
     this.workoutService.createWorkout(payload as any).subscribe({
       next: (res: any) => {
         const newId = res?.id ?? 0;
@@ -59,21 +83,31 @@ export class App {
             workoutDate: payload.workoutDate!,
             notes: ''
           };
+          this.activeWorkoutDisplayId = newId;
         } else {
-          // fallback local id
+          // fallback local negative id (distinct from server ids)
+          const temp = this.allocateTempId();
           this.activeWorkout = {
-            id: this.nextWorkoutId,
+            id: temp,
             userId: this.user!.id,
             workoutDate: payload.workoutDate!,
             notes: ''
           };
-          this.nextWorkoutId++;
+          this.activeWorkoutDisplayId = temp;
         }
         this.activeNotes = '';
       },
       error: (err) => {
-        console.error('Failed to create workout:', err);
-        alert('Failed to start workout. See console for details.');
+        console.error('Failed to create workout on server; using local id:', err);
+        const temp = this.allocateTempId();
+        this.activeWorkout = {
+          id: temp,
+          userId: this.user!.id,
+          workoutDate: payload.workoutDate!,
+          notes: ''
+        };
+        this.activeWorkoutDisplayId = temp;
+        this.activeNotes = '';
       }
     });
   }
@@ -90,11 +124,14 @@ export class App {
       notes: this.activeNotes.trim()
     };
 
+    // push to local list so history shows immediately; server persistence handled elsewhere
     this.workouts.push(finished);
     this.workouts.sort((a, b) => a.workoutDate < b.workoutDate ? 1 : -1);
 
-    this.nextWorkoutId++;
+    // Do NOT change nextWorkoutId here — we only increment nextWorkoutId when allocating a temp id.
+    // Clear active workout and its stable display id
     this.activeWorkout = null;
+    this.activeWorkoutDisplayId = null;
     this.activeNotes = '';
   }
 }

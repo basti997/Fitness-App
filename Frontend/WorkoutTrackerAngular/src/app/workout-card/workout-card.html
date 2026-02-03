@@ -1,7 +1,7 @@
 <div *ngIf="workout" class="workout-card"> 
   <h2>📋 Current Workout</h2> 
   <p class="meta"> 
-    Workout #{{ workout.id }} · {{ workout.workoutDate | date: 'medium' }} 
+    Workout #{{ displayId !== null ? displayId : workout.id }} · {{ workout.workoutDate | date: 'medium' }} 
   </p>
   <label class="notes-label">Notes during workout:</label>
   <textarea 

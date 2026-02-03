@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, ViewChild, OnInit} from '@angular/core';
+import { Component, EventEmitter, Input, Output, ViewChild, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Workout } from '../model/workout';
@@ -16,11 +16,11 @@ import { Exercises } from '../model/exercises';
   templateUrl: './workout-card.html',
   styleUrl: './workout-card.css',
 })
+export class WorkoutCard implements OnInit {
+  constructor(private workoutService: WorkoutService) {}
+  workouts: Workout[] = []; // Initialized with an empty array
 
-export class WorkoutCard implements OnInit{
-  constructor(private workoutService: WorkoutService){}
-  workouts: Workout[] = [] // Initialized with an empty array
-  ngOnInit(): void{
+  ngOnInit(): void {
     this.workoutService.getWorkouts().subscribe(
       workouts => {
         console.log('API response:', workouts);
@@ -32,13 +32,12 @@ export class WorkoutCard implements OnInit{
     );
   }
 
-// onOverlayClosed() {
-// throw new Error('Method not implemented.');
-// }
-  // null = no active workout
+  // Inputs
   @Input() workout: Workout | null = null;
+  // stable display id passed from parent; if present, the UI will show this instead of workout.id
+  @Input() displayId: number | string | null = null;
+
   @Input() user!: User | null;
-  //@Input() exerciseID!: Exercises | null;
 
   // temporary notes during this workout
   @Input() notes = '';
@@ -46,11 +45,9 @@ export class WorkoutCard implements OnInit{
   // tell parent to finish and save the workout
   @Output() notesChange = new EventEmitter<string>();
   @Output() finish = new EventEmitter<void>();
-  // selectedExerciseId: number | null = null;
-  // selectedExerciseName = '';
 
   onNotesChange(value: string) {
-  this.notesChange.emit(value);
+    this.notesChange.emit(value);
   }
 
   onFinishClicked() {
@@ -59,28 +56,24 @@ export class WorkoutCard implements OnInit{
 
   @ViewChild(MuscleGroupSelector) muscleGroupSelector!: MuscleGroupSelector;
 
-addExercises(): void {
-  this.muscleGroupSelector.openOverlay();
-}
-
-// workout.ts (component behind workout.html)
-// Add this near your other fields:
-exerciseBlocks: Array<{ exerciseId: number; name: string }> = [];
-
-// Replace/implement your existing handler:
-onExerciseAdded(ex: any) {
-  const exerciseId = ex?.exerciseId;
-  const name = ex?.name ?? '';
-
-  if (!exerciseId) return;
-
-  const existing = this.exerciseBlocks.find(b => b.exerciseId === exerciseId);
-  if (!existing) {
-    this.exerciseBlocks.push({ exerciseId, name });
-  } else {
-    // optional: keep name in sync if it changes
-    existing.name = name || existing.name;
+  addExercises(): void {
+    this.muscleGroupSelector.openOverlay();
   }
-}
 
+  // exercise block handling
+  exerciseBlocks: Array<{ exerciseId: number; name: string }> = [];
+
+  onExerciseAdded(ex: any) {
+    const exerciseId = ex?.exerciseId;
+    const name = ex?.name ?? '';
+
+    if (!exerciseId) return;
+
+    const existing = this.exerciseBlocks.find(b => b.exerciseId === exerciseId);
+    if (!existing) {
+      this.exerciseBlocks.push({ exerciseId, name });
+    } else {
+      existing.name = name || existing.name;
+    }
+  }
 }
