@@ -1,150 +1,63 @@
-using WorkoutTracker.Data.Entities;
-using WorkoutTracker.Data.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using WorkoutTracker.Data.Repositories;
+using WorkoutTracker.Data.Entities;
+using System;
 
-namespace WorkoutTracker.API.Controllers
+namespace WorkoutTracker.Api.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/workout")]
     public class WorkoutController : ControllerBase
     {
-        protected WorkoutRepository Repository { get; }
+        private readonly WorkoutRepository _repo;
 
-        public WorkoutController(WorkoutRepository repository)
+        public WorkoutController(IConfiguration configuration)
         {
-            Repository = repository;
+            _repo = new WorkoutRepository(configuration);
+        }
+
+        public class CreateWorkoutDto
+        {
+            public int UserId { get; set; }
+            public DateTime? WorkoutDate { get; set; }
+            public string Notes { get; set; }
+        }
+
+        // GET api/workout/user/{userId}
+        [HttpGet("user/{userId:int}")]
+        public IActionResult GetForUser(int userId)
+        {
+            if (userId <= 0) return BadRequest();
+            var list = _repo.GetWorkoutsByUserId(userId);
+            return Ok(list);
         }
 
         // GET api/workout/{id}
-        [HttpGet("{id}")]
-        public ActionResult<Workout> GetWorkout([FromRoute] int id)
+        [HttpGet("{id:int}")]
+        public IActionResult GetById(int id)
         {
-            Workout workout = Repository.GetWorkoutById(id);
-
-            if (workout == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(workout);
-        }
-
-        // GET api/workout
-        [HttpGet]
-        public ActionResult<IEnumerable<Workout>> GetWorkouts()
-        {
-            return Ok(Repository.GetWorkouts());
+            if (id <= 0) return BadRequest();
+            var w = _repo.GetWorkoutById(id);
+            if (w == null) return NotFound();
+            return Ok(w);
         }
 
         // POST api/workout
         [HttpPost]
-        public ActionResult Post([FromBody] Workout workout)
+        public IActionResult Create([FromBody] CreateWorkoutDto dto)
         {
-            if (workout == null)
+            if (dto == null || dto.UserId <= 0) return BadRequest();
+            var workout = new Workout(0)
             {
-                return BadRequest("Workout info not correct");
-            }
+                UserId = dto.UserId,
+                WorkoutDate = dto.WorkoutDate ?? DateTime.UtcNow,
+                Notes = dto.Notes ?? string.Empty
+            };
 
-            int newId = Repository.CreateWorkout(workout);
-
-            if (newId > 0)
-            {
-                return Ok(new { id = newId });
-            }
-
-            return BadRequest();
-        }
-
-        // PUT api/workout
-        [HttpPut]
-        public ActionResult UpdateWorkout([FromBody] Workout workout)
-        {
-            if (workout == null)
-            {
-                return BadRequest("Workout info not correct");
-            }
-
-            Workout existingWorkout = Repository.GetWorkoutById(workout.Id);
-
-            if (existingWorkout == null)
-            {
-                return NotFound($"Workout with id {workout.Id} not found");
-            }
-
-            bool status = Repository.UpdateWorkout(workout);
-
-            if (status)
-            {
-                return Ok();
-            }
-
-            return BadRequest("Something went wrong");
-        }
-
-        // DELETE api/workout/{id}
-        [HttpDelete("{id}")]
-        public ActionResult DeleteWorkout([FromRoute] int id)
-        {
-            Workout existingWorkout = Repository.GetWorkoutById(id);
-
-            if (existingWorkout == null)
-            {
-                return NotFound($"Workout with id {id} not found");
-            }
-
-            bool status = Repository.DeleteWorkout(id);
-
-            if (status)
-            {
-                return NoContent();
-            }
-
-            return BadRequest($"Unable to delete workout with id {id}");
-        }
-
-        // GET api/workout/byUser/{userId}
-        [HttpGet("byUser/{userId}")]
-        public ActionResult<IEnumerable<Workout>> GetWorkoutsByUser([FromRoute] int userId)
-        {
-            var workouts = Repository.GetWorkoutsByUser(userId);
-            if (workouts == null || !workouts.Any())
-            {
-                return NotFound();
-            }
-            return Ok(workouts);
-        }
-
-        // POST api/workout/start
-        [HttpPost("start")]
-        public ActionResult StartWorkout([FromBody] Workout workout)
-        {
-            if (workout == null || workout.UserId <= 0)
-            {
-                return BadRequest("Workout info not correct");
-            }
-
-            if (workout.WorkoutDate == default)
-            {
-                workout.WorkoutDate = DateTime.UtcNow;
-            }
-
-            int newId = Repository.CreateWorkout(workout);
-            if (newId > 0)
-            {
-                return Ok(new { id = newId });
-            }
-
-            return BadRequest();
-        }
-
-        // POST api/workout/finish/{id}
-        [HttpPost("finish/{id}")]
-        public ActionResult FinishWorkout([FromRoute] int id)
-        {
-            var existing = Repository.GetWorkoutById(id);
-            if (existing == null) return NotFound();
-
-            return Ok();
+            var id = _repo.InsertWorkout(workout);
+            if (id == 0) return StatusCode(500, "Could not create workout");
+            return CreatedAtAction(nameof(GetById), new { id = id }, new { id = id });
         }
     }
 }

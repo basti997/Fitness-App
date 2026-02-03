@@ -1,20 +1,51 @@
+using System;
+using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
 using Npgsql;
 using NpgsqlTypes;
-using System;
-using System.Collections.Generic;
 using WorkoutTracker.Data.Entities;
 
 namespace WorkoutTracker.Data.Repositories
 {
     public class WorkoutRepository : BaseRepository
     {
-        public WorkoutRepository(IConfiguration configuration) : base(configuration)
-        { }
+        public WorkoutRepository(IConfiguration configuration) : base(configuration) { }
 
-        // --------------------------------------------------------------------
-        // GET WORKOUT BY ID
-        // --------------------------------------------------------------------
+        // Get all workouts for a user (latest first)
+        public List<Workout> GetWorkoutsByUserId(int userId)
+        {
+            NpgsqlConnection dbConn = null;
+            var list = new List<Workout>();
+            try
+            {
+                dbConn = new NpgsqlConnection(ConnectionString);
+                var cmd = dbConn.CreateCommand();
+                cmd.CommandText = "SELECT workout_id, user_id, workout_date, notes FROM Workouts WHERE user_id = @userId ORDER BY workout_date DESC";
+                cmd.Parameters.Add("@userId", NpgsqlDbType.Integer).Value = userId;
+
+                var data = GetData(dbConn, cmd);
+                if (data != null)
+                {
+                    while (data.Read())
+                    {
+                        var w = new Workout(Convert.ToInt32(data["workout_id"]))
+                        {
+                            UserId = Convert.ToInt32(data["user_id"]),
+                            WorkoutDate = Convert.ToDateTime(data["workout_date"]),
+                            Notes = data["notes"]?.ToString() ?? string.Empty
+                        };
+                        list.Add(w);
+                    }
+                }
+                return list;
+            }
+            finally
+            {
+                dbConn?.Close();
+            }
+        }
+
+        // Get single workout by id
         public Workout GetWorkoutById(int id)
         {
             NpgsqlConnection dbConn = null;
@@ -22,22 +53,19 @@ namespace WorkoutTracker.Data.Repositories
             {
                 dbConn = new NpgsqlConnection(ConnectionString);
                 var cmd = dbConn.CreateCommand();
-
-                cmd.CommandText = "SELECT * FROM Workouts WHERE workout_id = @id";
+                cmd.CommandText = "SELECT workout_id, user_id, workout_date, notes FROM Workouts WHERE workout_id = @id LIMIT 1";
                 cmd.Parameters.Add("@id", NpgsqlDbType.Integer).Value = id;
 
                 var data = GetData(dbConn, cmd);
-
                 if (data != null && data.Read())
                 {
                     return new Workout(Convert.ToInt32(data["workout_id"]))
                     {
                         UserId = Convert.ToInt32(data["user_id"]),
                         WorkoutDate = Convert.ToDateTime(data["workout_date"]),
-                        Notes = data["notes"]?.ToString()
+                        Notes = data["notes"]?.ToString() ?? string.Empty
                     };
                 }
-
                 return null;
             }
             finally
@@ -46,96 +74,21 @@ namespace WorkoutTracker.Data.Repositories
             }
         }
 
-        // --------------------------------------------------------------------
-        // GET ALL WORKOUTS
-        // --------------------------------------------------------------------
-        public List<Workout> GetWorkouts()
+        // Insert new workout, returns new id or 0
+        public int InsertWorkout(Workout workout)
         {
-            var workouts = new List<Workout>();
-            NpgsqlConnection dbConn = null;
+            if (workout == null) return 0;
 
-            try
-            {
-                dbConn = new NpgsqlConnection(ConnectionString);
-                var cmd = dbConn.CreateCommand();
-
-                cmd.CommandText = "SELECT * FROM Workouts";
-
-                var data = GetData(dbConn, cmd);
-
-                while (data != null && data.Read())
-                {
-                    workouts.Add(new Workout(Convert.ToInt32(data["workout_id"]))
-                    {
-                        UserId = Convert.ToInt32(data["user_id"]),
-                        WorkoutDate = Convert.ToDateTime(data["workout_date"]),
-                        Notes = data["notes"]?.ToString()
-                    });
-                }
-
-                return workouts;
-            }
-            finally
-            {
-                dbConn?.Close();
-            }
-        }
-
-        // --------------------------------------------------------------------
-        // UPDATE WORKOUT
-        // --------------------------------------------------------------------
-        public bool UpdateWorkout(Workout w)
-        {
-            var dbConn = new NpgsqlConnection(ConnectionString);
-            var cmd = dbConn.CreateCommand();
-
-            cmd.CommandText = @"
-                UPDATE Workouts SET
-                    user_id = @user_id,
-                    workout_date = @workout_date,
-                    notes = @notes
-                WHERE workout_id = @id
-            ";
-
-            cmd.Parameters.AddWithValue("@user_id", NpgsqlDbType.Integer, w.UserId);
-            cmd.Parameters.AddWithValue("@workout_date", NpgsqlDbType.TimestampTz, w.WorkoutDate);
-            cmd.Parameters.AddWithValue("@notes", NpgsqlDbType.Text, (object?)w.Notes ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("@id", NpgsqlDbType.Integer, w.Id);
-
-            return UpdateData(dbConn, cmd);
-        }
-
-        // --------------------------------------------------------------------
-        // DELETE WORKOUT
-        // --------------------------------------------------------------------
-        public bool DeleteWorkout(int id)
-        {
-            var dbConn = new NpgsqlConnection(ConnectionString);
-            var cmd = dbConn.CreateCommand();
-
-            cmd.CommandText = "DELETE FROM Workouts WHERE workout_id = @id";
-            cmd.Parameters.AddWithValue("@id", NpgsqlDbType.Integer, id);
-
-            return DeleteData(dbConn, cmd);
-        }
-        
-        // --------------------------------------------------------------------
-        // CREATE WORKOUT — returns the new workout_id (or 0 on failure)
-        // --------------------------------------------------------------------
-        public int CreateWorkout(Workout workout)
-        {
             NpgsqlConnection dbConn = null;
             try
             {
                 dbConn = new NpgsqlConnection(ConnectionString);
                 var cmd = dbConn.CreateCommand();
-
                 cmd.CommandText = @"
                     INSERT INTO Workouts (user_id, workout_date, notes)
                     VALUES (@user_id, @workout_date, @notes)
                     RETURNING workout_id;
                 ";
-
                 cmd.Parameters.AddWithValue("@user_id", NpgsqlDbType.Integer, workout.UserId);
                 cmd.Parameters.AddWithValue("@workout_date", NpgsqlDbType.TimestampTz, workout.WorkoutDate);
                 cmd.Parameters.AddWithValue("@notes", NpgsqlDbType.Text, (object?)workout.Notes ?? DBNull.Value);
@@ -150,40 +103,8 @@ namespace WorkoutTracker.Data.Repositories
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"CreateWorkout failed: {ex.Message}");
+                Console.WriteLine($"InsertWorkout failed: {ex.Message}");
                 return 0;
-            }
-            finally
-            {
-                dbConn?.Close();
-            }
-        }
-
-        // --------------------------------------------------------------------
-        // GET WORKOUTS BY USER
-        // --------------------------------------------------------------------
-        public List<Workout> GetWorkoutsByUser(int userId)
-        {
-            var workouts = new List<Workout>();
-            NpgsqlConnection dbConn = null;
-            try
-            {
-                dbConn = new NpgsqlConnection(ConnectionString);
-                var cmd = dbConn.CreateCommand();
-                cmd.CommandText = "SELECT * FROM Workouts WHERE user_id = @user_id";
-                cmd.Parameters.Add("@user_id", NpgsqlDbType.Integer).Value = userId;
-
-                var data = GetData(dbConn, cmd);
-                while (data != null && data.Read())
-                {
-                    workouts.Add(new Workout(Convert.ToInt32(data["workout_id"]))
-                    {
-                        UserId = Convert.ToInt32(data["user_id"]),
-                        WorkoutDate = Convert.ToDateTime(data["workout_date"]),
-                        Notes = data["notes"]?.ToString()
-                    });
-                }
-                return workouts;
             }
             finally
             {

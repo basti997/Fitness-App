@@ -20,10 +20,9 @@ export class UserCard implements OnInit {
   @Output() userChange = new EventEmitter<User | null>();
   isLoggedIn = false;
 
-  private nextUserId = 1; // fallback local id
-  lastSavedUser: User | null = null; // <-- explicitly nullable
+  private nextUserId = 1;
+  lastSavedUser: User | null = null;
 
-  // Form model used by template
   user: { id: number; userName: string; eMail: string; password: string; createdAt: string } = {
     id: 0,
     userName: '',
@@ -37,10 +36,15 @@ export class UserCard implements OnInit {
   }
 
   private loadUsers(): void {
-    this.userService.getUsers().subscribe({
-      next: (users: User[]) => this.users = users ?? [],
-      error: (err: any) => console.error('Failed to load users:', err)
-    });
+    this.userService.getUsers().subscribe(
+      (result: any) => {
+        this.users = Array.isArray(result) ? result : (result || []);
+      },
+      (err: any) => {
+        console.error('Failed to load users:', err);
+        this.users = [];
+      }
+    );
   }
 
   get loginButtonLabel(): string {
@@ -48,11 +52,10 @@ export class UserCard implements OnInit {
   }
 
   openLogin(): void {
-    // Populate the form safely using lastSavedUser if available
     this.user = {
       id: this.nextUserId,
-      userName: this.lastSavedUser?.userName ?? '',
-      eMail: this.lastSavedUser?.eMail ?? '',
+      userName: (this.lastSavedUser && this.lastSavedUser.userName) || '',
+      eMail: (this.lastSavedUser && (this.lastSavedUser as any).eMail) || '',
       password: '',
       createdAt: new Date().toISOString()
     };
@@ -60,13 +63,13 @@ export class UserCard implements OnInit {
   }
 
   private isValidEmail(email: string): boolean {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return re.test((email ?? '').trim());
+    var re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test((email || '').trim());
   }
 
   saveUser(): void {
-    const email = (this.user.eMail ?? '').trim();
-    const password = this.user.password ?? '';
+    var email = (this.user.eMail || '').trim();
+    var password = this.user.password || '';
 
     if (!this.isValidEmail(email)) {
       alert('Please enter a valid email address.');
@@ -77,7 +80,7 @@ export class UserCard implements OnInit {
       return;
     }
 
-    const credentials = { email, password };
+    var credentials = { email: email, password: password };
 
     if (typeof (this.userService as any).login !== 'function') {
       alert('Login not available. Check UserService.');
@@ -85,58 +88,56 @@ export class UserCard implements OnInit {
       return;
     }
 
-    this.userService.login(credentials).subscribe({
-      next: (res: any) => {
-        // Defensive handling of server response
-        const createdId = Number(res?.id) || this.nextUserId;
-        const userName = (res?.userName ?? res?.username ?? this.user.userName ?? '').toString();
-        const createdAt = res?.createdAt ? String(res.createdAt) : new Date().toISOString();
+    this.userService.login(credentials).subscribe(
+      (res: any) => {
+        var createdId = (res && res.id) ? Number(res.id) : this.nextUserId;
+        var userName = (res && (res.userName || res.username)) ? (res.userName || res.username) : this.user.userName;
+        var createdAt = (res && res.createdAt) ? String(res.createdAt) : new Date().toISOString();
 
-        // Build a sanitized User object (avoid storing password)
-        const saved: User = {
+        var saved: User = {
           id: createdId,
-          userName,
+          userName: userName,
           eMail: email,
-          // If your frontend User type includes other fields, add them here as needed.
+          createdAt: createdAt
         } as any;
 
         this.isLoggedIn = true;
         this.lastSavedUser = saved;
         this.userChange.emit(this.lastSavedUser);
         this.showUserPopup = false;
-        this.nextUserId = Math.max(this.nextUserId, (this.lastSavedUser?.id ?? 0) + 1);
+        this.nextUserId = Math.max(this.nextUserId, (this.lastSavedUser && this.lastSavedUser.id) ? (this.lastSavedUser.id + 1) : this.nextUserId);
         this.loadUsers();
       },
-      error: (err: any) => {
+      (err: any) => {
         if (err instanceof HttpErrorResponse) {
           if (err.status === 404) {
-            // Create the user if not found
-            const userToCreate = {
-              Username: this.user.userName || email.split('@')[0],
-              Email: email,
-              PasswordHash: password
-            };
-            this.userService.createUser(userToCreate as any).subscribe({
-              next: (createRes: any) => {
-                const createdId = Number(createRes?.id) || this.nextUserId;
-                const saved: User = {
+            var username = this.user.userName || email.split('@')[0];
+            var userToCreate: any = { Username: username, Email: email, Password: password };
+
+            this.userService.createUser(userToCreate).subscribe(
+              (createRes: any) => {
+                var createdId = (createRes && createRes.id) ? Number(createRes.id) : this.nextUserId;
+                var createdAt = (createRes && createRes.createdAt) ? String(createRes.createdAt) : new Date().toISOString();
+
+                var saved: User = {
                   id: createdId,
-                  userName: userToCreate.Username,
-                  eMail: email
+                  userName: username,
+                  eMail: email,
+                  createdAt: createdAt
                 } as any;
 
                 this.isLoggedIn = true;
                 this.lastSavedUser = saved;
                 this.userChange.emit(this.lastSavedUser);
-                this.nextUserId++;
+                this.nextUserId = Math.max(this.nextUserId, saved.id + 1);
                 this.showUserPopup = false;
                 this.loadUsers();
               },
-              error: (createErr: any) => {
+              (createErr: any) => {
                 console.error('Create user failed:', createErr);
                 alert('Failed to create user. See console.');
               }
-            });
+            );
             return;
           } else if (err.status === 401) {
             alert('Invalid password. Please try again.');
@@ -146,18 +147,17 @@ export class UserCard implements OnInit {
         console.error('Login error:', err);
         alert('Login failed. See console for details.');
       }
-    });
+    );
   }
 
   cancel(): void {
     if (this.lastSavedUser) {
-      // Access lastSavedUser only inside guarded block
       this.user = {
         id: this.lastSavedUser.id,
-        userName: this.lastSavedUser.userName ?? '',
-        eMail: (this.lastSavedUser as any).eMail ?? '',
+        userName: this.lastSavedUser.userName || '',
+        eMail: (this.lastSavedUser as any).eMail || '',
         password: '',
-        createdAt: (this.lastSavedUser as any).createdAt ?? ''
+        createdAt: (this.lastSavedUser as any).createdAt || ''
       };
       this.isLoggedIn = true;
     } else {

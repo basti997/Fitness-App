@@ -12,167 +12,182 @@ namespace WorkoutTracker.Data.Repositories
         public UserRepository(IConfiguration configuration) : base(configuration)
         { }
 
+        /// <summary>
+        /// Get a single user by ID
+        /// </summary>
         public User GetUserById(int id)
         {
-            NpgsqlConnection dbConn = null;
-            try
+            if (id <= 0) return null;
+            var sql = "SELECT user_id, username, email, password_hash, created_at FROM Users WHERE user_id = @id LIMIT 1";
+            using (var conn = new NpgsqlConnection(ConnectionString))
+            using (var cmd = conn.CreateCommand())
             {
-                dbConn = new NpgsqlConnection(ConnectionString);
-                var cmd = dbConn.CreateCommand();
-                cmd.CommandText = "SELECT * FROM Users WHERE user_id = @id";
+                cmd.CommandText = sql;
                 cmd.Parameters.Add("@id", NpgsqlDbType.Integer).Value = id;
-
-                var data = GetData(dbConn, cmd);
-                if (data != null && data.Read())
+                conn.Open();
+                using (var reader = cmd.ExecuteReader())
                 {
-                    return new User((int)data["user_id"])
+                    if (reader.Read())
                     {
-                        Username = data["username"]?.ToString() ?? string.Empty,
-                        Email = data["email"]?.ToString() ?? string.Empty,
-                        PasswordHash = data["password_hash"]?.ToString() ?? string.Empty,
-                        CreatedAt = Convert.ToDateTime(data["created_at"])
-                    };
+                        return new User(Convert.ToInt32(reader["user_id"]))
+                        {
+                            Username = reader["username"]?.ToString() ?? string.Empty,
+                            Email = reader["email"]?.ToString() ?? string.Empty,
+                            PasswordHash = reader["password_hash"]?.ToString() ?? string.Empty,
+                            CreatedAt = Convert.ToDateTime(reader["created_at"])
+                        };
+                    }
                 }
-                return null;
             }
-            finally
-            {
-                dbConn?.Close();
-            }
+            return null;
         }
 
+        /// <summary>
+        /// Get a single user by email (or null if not found)
+        /// </summary>
         public User GetUserByEmail(string email)
         {
             if (string.IsNullOrWhiteSpace(email)) return null;
 
-            NpgsqlConnection dbConn = null;
-            try
+            var sql = "SELECT user_id, username, email, password_hash, created_at FROM Users WHERE email = @email LIMIT 1";
+            using (var conn = new NpgsqlConnection(ConnectionString))
+            using (var cmd = conn.CreateCommand())
             {
-                dbConn = new NpgsqlConnection(ConnectionString);
-                var cmd = dbConn.CreateCommand();
-                cmd.CommandText = "SELECT * FROM Users WHERE email = @email LIMIT 1";
+                cmd.CommandText = sql;
                 cmd.Parameters.Add("@email", NpgsqlDbType.Varchar).Value = email;
-
-                var data = GetData(dbConn, cmd);
-                if (data != null && data.Read())
+                conn.Open();
+                using (var reader = cmd.ExecuteReader())
                 {
-                    return new User(Convert.ToInt32(data["user_id"]))
+                    if (reader.Read())
                     {
-                        Username = data["username"]?.ToString() ?? string.Empty,
-                        Email = data["email"]?.ToString() ?? string.Empty,
-                        PasswordHash = data["password_hash"]?.ToString() ?? string.Empty,
-                        CreatedAt = Convert.ToDateTime(data["created_at"])
-                    };
-                }
-
-                return null;
-            }
-            finally
-            {
-                dbConn?.Close();
-            }
-        }
-
-        public List<User> GetUsers()
-        {
-            NpgsqlConnection dbConn = null;
-            var users = new List<User>();
-            try
-            {
-                dbConn = new NpgsqlConnection(ConnectionString);
-                var cmd = dbConn.CreateCommand();
-                cmd.CommandText = "SELECT * FROM Users";
-
-                var data = GetData(dbConn, cmd);
-                if (data != null)
-                {
-                    while (data.Read())
-                    {
-                        var user = new User(Convert.ToInt32(data["user_id"]))
+                        return new User(Convert.ToInt32(reader["user_id"]))
                         {
-                            Username = data["username"]?.ToString() ?? string.Empty,
-                            Email = data["email"]?.ToString() ?? string.Empty,
-                            PasswordHash = data["password_hash"]?.ToString() ?? string.Empty,
-                            CreatedAt = Convert.ToDateTime(data["created_at"])
+                            Username = reader["username"]?.ToString() ?? string.Empty,
+                            Email = reader["email"]?.ToString() ?? string.Empty,
+                            PasswordHash = reader["password_hash"]?.ToString() ?? string.Empty,
+                            CreatedAt = Convert.ToDateTime(reader["created_at"])
                         };
-                        users.Add(user);
                     }
                 }
-                return users;
             }
-            finally
-            {
-                dbConn?.Close();
-            }
+            return null;
         }
 
+        /// <summary>
+        /// Get all users
+        /// </summary>
+        public List<User> GetUsers()
+        {
+            var users = new List<User>();
+            var sql = "SELECT user_id, username, email, password_hash, created_at FROM Users ORDER BY user_id";
+            using (var conn = new NpgsqlConnection(ConnectionString))
+            using (var cmd = conn.CreateCommand())
+            {
+                cmd.CommandText = sql;
+                conn.Open();
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        users.Add(new User(Convert.ToInt32(reader["user_id"]))
+                        {
+                            Username = reader["username"]?.ToString() ?? string.Empty,
+                            Email = reader["email"]?.ToString() ?? string.Empty,
+                            PasswordHash = reader["password_hash"]?.ToString() ?? string.Empty,
+                            CreatedAt = Convert.ToDateTime(reader["created_at"])
+                        });
+                    }
+                }
+            }
+            return users;
+        }
+
+        /// <summary>
+        /// Insert a new user and return created user_id (or 0 on failure)
+        /// </summary>
         public int InsertUser(User user)
         {
             if (user == null) return 0;
 
-            NpgsqlConnection dbConn = null;
-            try
+            var sql = @"
+                INSERT INTO Users (username, email, password_hash)
+                VALUES (@username, @email, @password_hash)
+                RETURNING user_id;
+            ";
+
+            using (var conn = new NpgsqlConnection(ConnectionString))
+            using (var cmd = conn.CreateCommand())
             {
-                dbConn = new NpgsqlConnection(ConnectionString);
-                var cmd = dbConn.CreateCommand();
-                cmd.CommandText = @"
-                    INSERT INTO Users (username, email, password_hash, created_at)
-                    VALUES (@username, @email, @password_hash, @created_at)
-                    RETURNING user_id;
-                ";
+                cmd.CommandText = sql;
                 cmd.Parameters.AddWithValue("@username", NpgsqlDbType.Varchar, (object?)user.Username ?? DBNull.Value);
                 cmd.Parameters.AddWithValue("@email", NpgsqlDbType.Varchar, (object?)user.Email ?? DBNull.Value);
                 cmd.Parameters.AddWithValue("@password_hash", NpgsqlDbType.Varchar, (object?)user.PasswordHash ?? DBNull.Value);
-                cmd.Parameters.AddWithValue("@created_at", NpgsqlDbType.TimestampTz, user.CreatedAt);
 
-                dbConn.Open();
-                var result = cmd.ExecuteScalar();
-                if (result != null && int.TryParse(result.ToString(), out int newId))
+                try
                 {
-                    return newId;
+                    conn.Open();
+                    var result = cmd.ExecuteScalar();
+                    if (result != null && int.TryParse(result.ToString(), out int newId))
+                    {
+                        return newId;
+                    }
+                    return 0;
                 }
-                return 0;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"InsertUser failed: {ex.Message}");
-                return 0;
-            }
-            finally
-            {
-                dbConn?.Close();
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"InsertUser failed: {ex.Message}");
+                    return 0;
+                }
             }
         }
 
+        /// <summary>
+        /// Update an existing user
+        /// </summary>
         public bool UpdateUser(User user)
         {
-            if (user == null) return false;
+            if (user == null || user.Id <= 0) return false;
 
-            var dbConn = new NpgsqlConnection(ConnectionString);
-            var cmd = dbConn.CreateCommand();
-            cmd.CommandText = @"
+            var sql = @"
                 UPDATE Users SET
                     username = @username,
                     email = @email,
                     password_hash = @password_hash
                 WHERE user_id = @id
             ";
-            cmd.Parameters.AddWithValue("@username", NpgsqlDbType.Varchar, (object?)user.Username ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("@email", NpgsqlDbType.Varchar, (object?)user.Email ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("@password_hash", NpgsqlDbType.Varchar, (object?)user.PasswordHash ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("@id", NpgsqlDbType.Integer, user.Id);
+            using (var conn = new NpgsqlConnection(ConnectionString))
+            using (var cmd = conn.CreateCommand())
+            {
+                cmd.CommandText = sql;
+                cmd.Parameters.AddWithValue("@username", NpgsqlDbType.Varchar, (object?)user.Username ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@email", NpgsqlDbType.Varchar, (object?)user.Email ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@password_hash", NpgsqlDbType.Varchar, (object?)user.PasswordHash ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@id", NpgsqlDbType.Integer, user.Id);
 
-            return UpdateData(dbConn, cmd);
+                conn.Open();
+                var rows = cmd.ExecuteNonQuery();
+                return rows > 0;
+            }
         }
 
+        /// <summary>
+        /// Delete a user by ID
+        /// </summary>
         public bool DeleteUser(int id)
         {
-            var dbConn = new NpgsqlConnection(ConnectionString);
-            var cmd = dbConn.CreateCommand();
-            cmd.CommandText = "DELETE FROM Users WHERE user_id = @id";
-            cmd.Parameters.AddWithValue("@id", NpgsqlDbType.Integer, id);
+            if (id <= 0) return false;
 
-            return DeleteData(dbConn, cmd);
+            var sql = "DELETE FROM Users WHERE user_id = @id";
+            using (var conn = new NpgsqlConnection(ConnectionString))
+            using (var cmd = conn.CreateCommand())
+            {
+                cmd.CommandText = sql;
+                cmd.Parameters.AddWithValue("@id", NpgsqlDbType.Integer, id);
+
+                conn.Open();
+                var rows = cmd.ExecuteNonQuery();
+                return rows > 0;
+            }
         }
     }
 }
