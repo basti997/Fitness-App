@@ -3,16 +3,13 @@
     <div class="workout-list"> 
         <div class="workout-item" *ngFor="let w of workouts"> 
             <div class="workout-header"> 
-                <span class="workout-id">#{{ w.workout_id }}</span> 
-                <span class="workout-date">{{ w.workout_date | date:'medium' }}</span> 
+                <span class="workout-id">#{{ w.id }}</span> 
+                <span class="workout-date">{{ w.workoutDate | date:'medium' }}</span> 
             </div> 
             <div class="workout-notes" *ngIf="w.notes; else noNotes"> {{ w.notes }} 
-
             </div> 
             <ng-template #noNotes> 
-                <div class="workout-notes empty">No notes added.
-
-            </div> 
+                <div class="workout-notes empty">No notes added.</div> 
             </ng-template> 
         </div> 
     </div> 

@@ -1,4 +1,4 @@
-import { Component, Output, EventEmitter, Input, OnInit} from '@angular/core';
+import { Component, Output, EventEmitter, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Musclegroup } from '../model/musclegroup';
 import { ExerciseSelector } from "../exercise-selector/exercise-selector";
@@ -11,8 +11,7 @@ import { firstValueFrom } from 'rxjs';
   standalone: true,
   imports: [CommonModule, ExerciseSelector],
   templateUrl: './musclegroup-selector.html',
-  styleUrl: './musclegroup-selector.css',
-
+  styleUrls: ['./musclegroup-selector.css'],
 })
 export class MuscleGroupSelector implements OnInit{
   constructor(private MuscleGroupService: MuscleGroupService){}
@@ -40,21 +39,21 @@ export class MuscleGroupSelector implements OnInit{
 
   openOverlay(): void {  // No async needed
     this.isOverlayOpen = true;
-    this.muscleGroups = this.muscleGroups;  // ✅ Instant, cached
+    this.muscleGroups = this.muscleGroups;  // cached
     document.body.style.overflow = 'hidden';
   }
 
+  // If you want to reload on demand, use the Angular service instead of fetch:
   private async loadFromExercises(): Promise<void> {
     try {
-      const response = await fetch('/api/musclegroups');  // Direct API call
-      this.muscleGroups = await response.json();
+      const muscleGroups = await firstValueFrom(this.MuscleGroupService.getMuscleGroups());
+      this.muscleGroups = muscleGroups;
     } catch (error) {
       console.error('Failed to load muscle groups:', error);
       this.muscleGroups = [];
     }
   }
   
-
   selectMuscleGroup(groupId: number): void {
     this.selectedMuscleGroupId = groupId;
     this.showExercises = true;

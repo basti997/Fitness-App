@@ -1,11 +1,12 @@
-namespace WorkoutTracker.Data.Repositories;
-
-using System;
-using System.Collections.Generic;
-using WorkoutTracker.Data.Entities;
 using Microsoft.Extensions.Configuration;
 using Npgsql;
 using NpgsqlTypes;
+using System;
+using System.Collections.Generic;
+using WorkoutTracker.Data.Entities;
+
+namespace WorkoutTracker.Data.Repositories
+{
     public class WorkoutRepository : BaseRepository
     {
         public WorkoutRepository(IConfiguration configuration) : base(configuration)
@@ -119,26 +120,42 @@ using NpgsqlTypes;
         }
         
         // --------------------------------------------------------------------
-        // CREATE WORKOUT
+        // CREATE WORKOUT — returns the new workout_id (or 0 on failure)
         // --------------------------------------------------------------------
-        public bool CreateWorkout(Workout workout)
+        public int CreateWorkout(Workout workout)
         {
             NpgsqlConnection dbConn = null;
             try
             {
                 dbConn = new NpgsqlConnection(ConnectionString);
                 var cmd = dbConn.CreateCommand();
-                cmd.CommandText = @"INSERT INTO Workouts (user_id, workout_date, notes) VALUES (@user_id, @workout_date, @notes)";
+
+                cmd.CommandText = @"
+                    INSERT INTO Workouts (user_id, workout_date, notes)
+                    VALUES (@user_id, @workout_date, @notes)
+                    RETURNING workout_id;
+                ";
 
                 cmd.Parameters.AddWithValue("@user_id", NpgsqlDbType.Integer, workout.UserId);
                 cmd.Parameters.AddWithValue("@workout_date", NpgsqlDbType.TimestampTz, workout.WorkoutDate);
                 cmd.Parameters.AddWithValue("@notes", NpgsqlDbType.Text, (object?)workout.Notes ?? DBNull.Value);
 
-                return InsertData(dbConn, cmd);
+                dbConn.Open();
+                var result = cmd.ExecuteScalar();
+                if (result != null && int.TryParse(result.ToString(), out int newId))
+                {
+                    return newId;
+                }
+                return 0;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"CreateWorkout failed: {ex.Message}");
+                return 0;
             }
             finally
             {
-            dbConn?.Close();
+                dbConn?.Close();
             }
         }
 
@@ -173,5 +190,5 @@ using NpgsqlTypes;
                 dbConn?.Close();
             }
         }
-
     }
+}

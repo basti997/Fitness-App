@@ -26,7 +26,8 @@ export class WorkoutService {
     deleteWorkout(id: number): Observable<any> {
       return this.http.delete(`${this.baseUrl}/workout/${id}`);
     }
-    getWorkoutsByUser(userId: number): Observable<Workout[]> {  // User
-      return this.http.get<Workout[]>(`${this.baseUrl}/workout/user/${userId}`);
+    // <-- FIXED: call backend route "byUser"
+    getWorkoutsByUser(userId: number): Observable<Workout[]> {
+      return this.http.get<Workout[]>(`${this.baseUrl}/workout/byUser/${userId}`);
     }
 }

@@ -31,13 +31,18 @@ if (app.Environment.IsDevelopment())
 
 //app.UseHttpsRedirection();
 app.UseRouting();
-app.UseAuthorization();
 
-app.MapControllers();
+// MOVE CORS HERE (before Authorization and MapControllers)
 app.UseCors(policy =>
 {
     policy.AllowAnyHeader();
     policy.AllowAnyMethod();
     policy.AllowAnyOrigin();
 });
+
+app.UseAuthorization();
+
+// Map controllers after CORS and Authorization
+app.MapControllers();
+
 app.Run();

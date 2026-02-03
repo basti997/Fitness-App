@@ -10,7 +10,7 @@ import { MuscleGroupService } from '../services/muscle-group-service';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './exercise-selector.html',
-  styleUrl: './exercise-selector.css',
+  styleUrls: ['./exercise-selector.css'],
 })
 export class ExerciseSelector implements OnInit {
   constructor(private exerciseService: ExercisesService){}

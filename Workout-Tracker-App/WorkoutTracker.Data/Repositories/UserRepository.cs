@@ -1,13 +1,12 @@
-namespace WorkoutTracker.Data.Repositories;
-
 using System;
-//using System.Collections.Generic;
+using System.Collections.Generic;
 using WorkoutTracker.Data.Entities;
 using Microsoft.Extensions.Configuration;
 using Npgsql;
 using NpgsqlTypes;
 
-
+namespace WorkoutTracker.Data.Repositories
+{
     public class UserRepository : BaseRepository
     {
         public UserRepository(IConfiguration configuration) : base(configuration)
@@ -82,9 +81,9 @@ using NpgsqlTypes;
         }
 
         /// <summary>
-        /// Insert a new user
+        /// Insert a new user and return created user_id (or 0 on failure)
         /// </summary>
-        public bool InsertUser(User user)
+        public int InsertUser(User user)
         {
             NpgsqlConnection dbConn = null;
             try
@@ -94,12 +93,24 @@ using NpgsqlTypes;
                 cmd.CommandText = @"
                     INSERT INTO Users (username, email, password_hash)
                     VALUES (@username, @email, @password_hash)
+                    RETURNING user_id;
                 ";
                 cmd.Parameters.AddWithValue("@username", NpgsqlDbType.Varchar, user.Username);
                 cmd.Parameters.AddWithValue("@email", NpgsqlDbType.Varchar, user.Email);
                 cmd.Parameters.AddWithValue("@password_hash", NpgsqlDbType.Varchar, user.PasswordHash);
 
-                return InsertData(dbConn, cmd);
+                dbConn.Open();
+                var result = cmd.ExecuteScalar();
+                if (result != null && int.TryParse(result.ToString(), out int newId))
+                {
+                    return newId;
+                }
+                return 0;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"InsertUser failed: {ex.Message}");
+                return 0;
             }
             finally
             {
@@ -130,7 +141,7 @@ using NpgsqlTypes;
         }
 
         /// <summary>
-        /// Delete a user by ID
+        /// Delete a user
         /// </summary>
         public bool DeleteUser(int id)
         {
@@ -142,3 +153,4 @@ using NpgsqlTypes;
             return DeleteData(dbConn, cmd);
         }
     }
+}

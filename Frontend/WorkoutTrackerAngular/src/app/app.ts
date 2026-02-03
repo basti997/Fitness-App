@@ -9,62 +9,92 @@ import { UserCard } from './user-card/user-card';
 import { WorkoutCard } from './workout-card/workout-card';
 import { WorkoutList } from './workout-list/workout-list';
 import { WorkoutsetTracker } from "./workoutset-tracker/workoutset-tracker";
+import { WorkoutService } from './services/workout-service';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, CommonModule, UserCard, WorkoutCard, WorkoutList, WorkoutsetTracker, FormsModule],   // put imports here, not above
+  imports: [RouterOutlet, CommonModule, UserCard, WorkoutCard, WorkoutList, WorkoutsetTracker, FormsModule],
   templateUrl: './app.html',
-  styleUrl: './app.css'
+  styleUrls: ['./app.css']
 })
 export class App {
-addExerciseToWorkout($event: Event) {
-throw new Error('Method not implemented.');
-}
+  constructor(private workoutService: WorkoutService) {}
+
   protected readonly title = signal('WorkoutTrackerAngular');
 
-user: User | null = null;
+  user: User | null = null;
 
-workouts: Workout[] = [];
-private nextWorkoutId = 1;
+  workouts: Workout[] = [];
+  private nextWorkoutId = 1;
 
-activeWorkout: Workout | null = null;
-activeNotes = '';
-showMuscleSelector: any;
+  activeWorkout: Workout | null = null;
+  activeNotes = '';
+  showMuscleSelector: any;
 
-onUserChanged(user: User | null) {
-this.user = user;
-}
+  onUserChanged(user: User | null) {
+    this.user = user;
+  }
 
-startNewWorkout() {
-if (!this.user) return;
+  startNewWorkout() {
+    if (!this.user || !this.user.id || this.user.id <= 0) {
+      alert('Please create or select a user before starting a workout.');
+      return;
+    }
 
-this.activeWorkout = {
-workout_id: this.nextWorkoutId,
-user_id: this.user.id,
-workout_date: new Date().toISOString(),
-notes: ''
-};
-this.activeNotes = '';
-}
+    const payload: Partial<Workout> = {
+      userId: this.user.id,
+      workoutDate: new Date().toISOString(),
+      notes: ''
+    };
 
-onActiveNotesChange(notes: string) {
-this.activeNotes = notes;
-}
+    // Persist the workout first so workoutId is valid for sets
+    this.workoutService.createWorkout(payload as any).subscribe({
+      next: (res: any) => {
+        const newId = res?.id ?? 0;
+        if (newId > 0) {
+          this.activeWorkout = {
+            id: newId,
+            userId: this.user!.id,
+            workoutDate: payload.workoutDate!,
+            notes: ''
+          };
+        } else {
+          // fallback to local id if backend didn't return id (shouldn't happen with server changes)
+          this.activeWorkout = {
+            id: this.nextWorkoutId,
+            userId: this.user!.id,
+            workoutDate: payload.workoutDate!,
+            notes: ''
+          };
+          this.nextWorkoutId++;
+        }
+        this.activeNotes = '';
+      },
+      error: (err) => {
+        console.error('Failed to create workout:', err);
+        alert('Failed to start workout. See console for details.');
+      }
+    });
+  }
 
-finishActiveWorkout() {
-if (!this.activeWorkout) return;
+  onActiveNotesChange(notes: string) {
+    this.activeNotes = notes;
+  }
 
-const finished: Workout = {
-...this.activeWorkout,
-notes: this.activeNotes.trim()
-};
+  finishActiveWorkout() {
+    if (!this.activeWorkout) return;
 
-this.workouts.push(finished);
-this.workouts.sort((a, b) => a.workout_date < b.workout_date ? 1 : -1);
+    const finished: Workout = {
+      ...this.activeWorkout,
+      notes: this.activeNotes.trim()
+    };
 
-this.nextWorkoutId++;
-this.activeWorkout = null;
-this.activeNotes = '';
-}
+    this.workouts.push(finished);
+    this.workouts.sort((a, b) => a.workoutDate < b.workoutDate ? 1 : -1);
+
+    this.nextWorkoutId++;
+    this.activeWorkout = null;
+    this.activeNotes = '';
+  }
 }
