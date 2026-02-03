@@ -1,13 +1,11 @@
 export interface WorkoutSet {
-        // set_id SERIAL PRIMARY KEY → Auto-generated, optional for new sets
-    id: number;  
-    workoutId: number;
-    exerciseId: number;
-    setNumber: number;
-    weight: number;
-    reps: number;
+  id: number;          // primary key (matches backend JSON "id")
+  workoutId: number;
+  exerciseId: number;
+  setNumber: number;
+  weight: number;
+  reps: number;
 
-    done?: boolean;
-    editing?: boolean;
- 
+  done?: boolean;
+  editing?: boolean;
 }

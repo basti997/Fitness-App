@@ -48,7 +48,7 @@ export class App {
       notes: ''
     };
 
-    // Persist the workout first so workoutId is valid for sets
+    // Persist the workout so workoutId is valid for sets
     this.workoutService.createWorkout(payload as any).subscribe({
       next: (res: any) => {
         const newId = res?.id ?? 0;
@@ -60,7 +60,7 @@ export class App {
             notes: ''
           };
         } else {
-          // fallback to local id if backend didn't return id (shouldn't happen with server changes)
+          // fallback local id
           this.activeWorkout = {
             id: this.nextWorkoutId,
             userId: this.user!.id,

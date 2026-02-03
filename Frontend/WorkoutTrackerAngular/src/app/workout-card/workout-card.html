@@ -1,46 +1,30 @@
 <div *ngIf="workout" class="workout-card"> 
-    <h2>📋 Current Workout</h2> 
-    
-    <p class="meta"> 
-        Workout #{{ workout.id }} 
-        · {{ workout.workoutDate | date: 'medium' }} </p>
-    <label class="notes-label">Notes during workout:</label>
-    
-    <textarea 
+  <h2>📋 Current Workout</h2> 
+  <p class="meta"> 
+    Workout #{{ workout.id }} · {{ workout.workoutDate | date: 'medium' }} 
+  </p>
+  <label class="notes-label">Notes during workout:</label>
+  <textarea 
     class="notes-input" 
     rows="4" 
     [ngModel]="notes" 
     (ngModelChange)="onNotesChange($event)" 
-    placeholder="Write how you feel, focus, etc."> 
-
-    </textarea> 
-    
-    <div class="exercise-actions" *ngIf="workout">
-      <button 
-          class="btn add-exercises-btn" 
-          (click)="addExercises()">
-          + Add Exercises
-      </button>
-      
-      <app-musclegroup-selector 
-          (exerciseAdded)="onExerciseAdded($event)">
-      </app-musclegroup-selector>
-      <div *ngFor="let ex of exerciseBlocks" class="exercise-block">
-        <h3>{{ ex.name }}</h3>
-      
-        <app-workoutset-tracker
-          [workout]="workout"
-          [user]="user"
-          [exerciseName]="ex.name"
-          [exerciseId]="ex.exerciseId"
-          (addExercise)="addExercises()">
-        </app-workoutset-tracker>
-      </div>
-
-  </div>
-
-    <div class="actions"> 
-        <button class="btn finish-btn" (click)="onFinishClicked()"> 
-            ✅ Finish Workout </button> 
-        </div> 
+    placeholder="Write how you feel, focus, etc."></textarea> 
+  <div class="exercise-actions" *ngIf="workout">
+    <button class="btn add-exercises-btn" (click)="addExercises()">+ Add Exercises</button>
+    <app-musclegroup-selector (exerciseAdded)="onExerciseAdded($event)"></app-musclegroup-selector>
+    <div *ngFor="let ex of exerciseBlocks" class="exercise-block">
+      <h3>{{ ex.name }}</h3>
+      <app-workoutset-tracker
+        [workout]="workout"
+        [user]="user"
+        [exerciseName]="ex.name"
+        [exerciseId]="ex.exerciseId"
+        (addExercise)="addExercises()">
+      </app-workoutset-tracker>
     </div>
+  </div>
+  <div class="actions"> 
+    <button class="btn finish-btn" (click)="onFinishClicked()">✅ Finish Workout</button> 
+  </div> 
+</div>

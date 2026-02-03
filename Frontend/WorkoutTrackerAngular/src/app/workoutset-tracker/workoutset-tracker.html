@@ -1,99 +1,78 @@
 <div class="workoutset-card" *ngIf="exerciseName">
-    <!-- Header gradient like inspiration -->
-    <div class="exercise-header">
-      <div class="exercise-title-row">
-        <span class="exercise-status-icon">✅</span>
-        <h2 class="exercise-title">
-          {{ exerciseName }}
-          <span class="sets-done" *ngIf="sets.length > 0">
-            ({{ sets.length }} sets done)
-          </span>
-        </h2>
-      </div>
-      <p class="exercise-subtitle" *ngIf="todaysBestText">
-        {{ todaysBestText }}
-      </p>
+  <div class="exercise-header">
+    <div class="exercise-title-row">
+      <span class="exercise-status-icon">✅</span>
+      <h2 class="exercise-title">
+        {{ exerciseName }}
+        <span class="sets-done" *ngIf="sets.length > 0"> ({{ sets.length }} sets done) </span>
+      </h2>
     </div>
-  
-    <!-- Add Set section -->
-    <section class="add-set-section">
-      <h3 class="section-title">Add Set</h3>
-  
-      <div class="add-set-row">
-        <div class="input-group">
-          <label class="input-label">Weight (kg)</label>
-          <input
-            type="number"
-            class="set-input"
-            [(ngModel)]="currentWeight"
-            min="0"
-          />
-        </div>
-  
-        <div class="input-group">
-          <label class="input-label">Reps</label>
-          <input
-            type="number"
-            class="set-input"
-            [(ngModel)]="currentReps"
-            min="0"
-          />
-        </div>
-  
-        <button class="btn add-set-btn" (click)="addSet()">
-          <span class="btn-plus">+</span>
-          <span class="btn-text">Add Set</span>
-        </button>
-      </div>
-    </section>
-  
-    <!-- Existing sets -->
-    <section class="sets-list" *ngIf="sets.length > 0">
-      <div class="set-row" *ngFor="let set of sets">
-        
 
-<!-- NORMAL VIEW -->
-<ng-container *ngIf="editingSetId !== set.id; else editRow">
-  <div class="set-info" [class.set-done]="set.done">
-    <div class="set-line">
-      <span class="set-number">Set {{ set.setNumber }}:</span>
-      <span class="set-details">{{ set.weight }}kg × {{ set.reps }} reps</span>
-    </div>
+    <p class="exercise-subtitle" *ngIf="todaysBestText">{{ todaysBestText }}</p>
+    <button type="button" (click)="debugClick()" style="padding:12px; background:red; color:white;">TEST CLICK</button>
   </div>
 
-  <div class="set-actions">
-    <button class="icon-btn edit-btn" (click)="$event.stopPropagation(); startEdit(set)">✏️</button>
-    <button class="icon-btn delete-btn" (click)="$event.stopPropagation(); deleteSet(set)">🗑️</button>
-  </div>
-</ng-container>
+  <section class="add-set-section">
+    <h3 class="section-title">Add Set</h3>
 
-<ng-template #editRow>
-  <div class="set-info">
-    <div class="edit-set-row">
+    <div class="add-set-row">
       <div class="input-group">
         <label class="input-label">Weight (kg)</label>
-        <input type="number" class="set-input" [(ngModel)]="editWeight" min="0" />
+        <input type="number" class="set-input" [(ngModel)]="currentWeight" min="0" />
       </div>
 
       <div class="input-group">
         <label class="input-label">Reps</label>
-        <input type="number" class="set-input" [(ngModel)]="editReps" min="0" />
+        <input type="number" class="set-input" [(ngModel)]="currentReps" min="0" />
       </div>
 
-      <button type="button" class="btn add-set-btn" (click)="$event.stopPropagation(); saveEdit(set)">Save</button>
-      <button type="button" class="btn cancel-edit-btn" (click)="$event.stopPropagation(); cancelEdit()">Cancel</button>
-    </div>
-  </div>
-</ng-template>
-      </div>
-    </section>
-  
-    <!-- Footer actions -->
-    <div class="footer-actions">
-      <button class="secondary-link" (click)="onAddExercise()">
-        + Add Exercise
+      <button class="btn add-set-btn" (click)="addSet()">
+        <span class="btn-plus">+</span>
+        <span class="btn-text">Add Set</span>
       </button>
-  
     </div>
+  </section>
+
+  <section class="sets-list" *ngIf="sets.length > 0">
+    <div class="set-row" *ngFor="let set of sets">
+
+      <ng-container *ngIf="editingSetId !== set.id; else editRow">
+        <div class="set-info" [class.set-done]="set.done">
+          <div class="set-line">
+            <span class="set-number">Set {{ set.setNumber }}:</span>
+            <span class="set-details">{{ set.weight }}kg × {{ set.reps }} reps</span>
+          </div>
+        </div>
+
+        <div class="set-actions">
+          <button class="icon-btn edit-btn" (click)="startEdit(set)">✏️</button>
+          <button class="icon-btn delete-btn" (click)="deleteSet(set)">🗑️</button>
+        </div>
+      </ng-container>
+
+      <ng-template #editRow>
+        <div class="set-info">
+          <div class="edit-set-row">
+            <div class="input-group">
+              <label class="input-label">Weight (kg)</label>
+              <input type="number" class="set-input" [(ngModel)]="editWeight" min="0" />
+            </div>
+
+            <div class="input-group">
+              <label class="input-label">Reps</label>
+              <input type="number" class="set-input" [(ngModel)]="editReps" min="0" />
+            </div>
+
+            <button type="button" class="btn add-set-btn" (click)="saveEdit(set)">Save</button>
+            <button type="button" class="btn cancel-edit-btn" (click)="cancelEdit()">Cancel</button>
+          </div>
+        </div>
+      </ng-template>
+
+    </div>
+  </section>
+
+  <div class="add-more">
+    <button class="secondary-link" (click)="onAddExercise()">+ Add another exercise</button>
   </div>
-  
+</div>
