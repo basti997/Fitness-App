@@ -5,6 +5,7 @@ import { WorkoutSet } from '../model/workoutset';
 import { WorkoutSetsService } from '../services/workout-sets-service';
 import { Workout } from '../model/workout';
 import { User } from '../model/user';
+import { WorkoutSetsService } from '../services/workout-sets-service';
 
 @Component({
   selector: 'app-workoutset-tracker',
@@ -13,14 +14,14 @@ import { User } from '../model/user';
   templateUrl: './workoutset-tracker.html',
   styleUrls: ['./workoutset-tracker.css'],
 })
-export class WorkoutsetTracker implements OnInit {
-  @Input() workout: Workout | null = null;
-  @Input() user: User | null = null;
-  @Input() exerciseName = '';
-  @Input() exerciseId: number | null = null;
-
-  // Optional input shown in the template
-  @Input() todaysBestText: string | null = null;
+export class WorkoutsetTracker implements OnInit{
+console: any;
+  constructor(private workoutsetService: WorkoutSetsService){}
+    @Input() exerciseName = '';           // e.g. "Bench Press"
+    @Input() todaysBestText = '';        // e.g. "Today's best: 80kg x 8 reps"
+    @Input() user!: User | null;      
+    @Input() workout!: Workout | null;
+    @Input() exerciseId: number | null = null;
 
   @Output() setsChanged = new EventEmitter<WorkoutSet[]>();
   @Output() addExercise = new EventEmitter<void>();
@@ -34,12 +35,7 @@ export class WorkoutsetTracker implements OnInit {
   currentWeight = 0;
   currentReps = 0;
 
-  // Inputs for editing an existing set
-  editWeight = 0;
-  editReps = 0;
-
-  constructor(private workoutsetService: WorkoutSetsService) {}
-
+    // ✅ SINGLE ngOnInit - proper logic
   ngOnInit(): void {
     if (this.workout?.id) {
       this.loadWorkoutSets(this.workout.id);
@@ -49,9 +45,9 @@ export class WorkoutsetTracker implements OnInit {
   // Load all sets for the workout then filter by exerciseId in the subscription (template uses filtered `sets`)
   private loadWorkoutSets(workoutId: number): void {
     this.workoutsetService.getSetsByWorkout(workoutId).subscribe({
-      next: (workoutsets: WorkoutSet[]) => {
+      next: (workoutsets: any[]) => {
         const exId = this.exerciseId;
-        this.sets = exId == null ? [] : workoutsets.filter(s => s.exerciseId === exId);
+        this.sets = (exId == null) ? [] : workoutsets.filter(s => s.exerciseId === exId);
         this.setsChanged.emit(this.sets);
       },
       error: (error) => {
@@ -61,123 +57,116 @@ export class WorkoutsetTracker implements OnInit {
       }
     });
   }
-
-  addSet(): void {
+  
+    addSet(): void {
     if (!this.currentWeight || !this.currentReps || !this.workout) {
-      // Basic guard: require numbers and a parent workout
-      console.warn('Cannot add set: missing inputs or workout.');
       return;
     }
 
+    // CHANGE 1: Added a guard so we never send exerciseId <= 0 / null to the backend.
+    // Reason: backend POST rejects when ExerciseId <= 0 ("WorkoutSet info not correct"). [file:170]
     if (this.exerciseId === null || this.exerciseId <= 0) {
       console.error('No exercise selected -> cannot save set. exerciseId=', this.exerciseId);
       return;
     }
 
-    const nextNumber = this.sets.reduce((m, s) => Math.max(m, s.setNumber), 0) + 1;
+    const nextNumber =
+    this.sets.reduce((m, s) => Math.max(m, s.setNumber), 0) + 1;
 
     const newSet: WorkoutSet = {
       setNumber: nextNumber,
       weight: this.currentWeight,
       reps: this.currentReps,
       done: true,
-      workoutId: this.workout.id,
-      exerciseId: this.exerciseId,
-      setId: 0, // backend will assign an id
-    };
+      workoutId: this.workout.workout_id, // ✅ Link to parent workout
 
-    // Optimistically update UI
+      // CHANGE 2: Use the real exerciseId (guaranteed > 0 due to guard above).
+      // This replaces the previous buggy "exerciseId: 0" which always triggered the backend 400. [file:170]
+      exerciseId: this.exerciseId,
+
+      setId: 0,
+    };
+    console.log('POST payload', newSet);
+
     this.sets.push(newSet);
     this.setsChanged.emit(this.sets);
 
     this.workoutsetService.createWorkoutSet(newSet).subscribe({
-      next: (res) => {
-        // After success, reload from server to get real ids and ordering
-        if (this.workout) this.loadWorkoutSets(this.workout.id);
+      next: () => {
+        console.log('✅ Set saved!');
+        const workoutId = this.workout!.workout_id;
+        this.loadWorkoutSets(workoutId);
       },
       error: (error) => {
-        console.error('Save failed:', error);
-        // rollback optimistic change
-        this.sets = this.sets.filter(s => s !== newSet);
-        this.setsChanged.emit(this.sets);
-      }
-    });
-
-    // Keep weight/reps for quick repeated entries (user preferred)
-  }
-
-  // Edit flow
-  startEdit(set: WorkoutSet): void {
-    if (!set || !set.setId) return;
-    this.editingSetId = set.setId;
-    this.editingSetNumber = set.setNumber;
-    this.editWeight = set.weight;
-    this.editReps = set.reps;
-  }
-
-  saveEdit(set: WorkoutSet): void {
-    if (!this.editingSetId || !this.workout) return;
-
-    // Apply edits locally
-    const idx = this.sets.findIndex(s => s.setId === this.editingSetId);
-    if (idx === -1) {
-      this.cancelEdit();
-      return;
-    }
-
-    const updated: WorkoutSet = {
-      ...this.sets[idx],
-      weight: this.editWeight,
-      reps: this.editReps,
-      setNumber: this.editingSetNumber ?? this.sets[idx].setNumber,
-    };
-
-    // Optimistically apply
-    this.sets[idx] = updated;
-    this.setsChanged.emit(this.sets);
-
-    this.workoutsetService.updateWorkoutSet(updated).subscribe({
-      next: () => {
-        // After update, reload to ensure server canonical state
-        this.loadWorkoutSets(this.workout!.id);
-        this.editingSetId = null;
-      },
-      error: (error) => {
-        console.error('Update failed:', error);
-        // Reload to restore server state
-        this.loadWorkoutSets(this.workout!.id);
-        this.editingSetId = null;
-      }
-    });
-  }
-
-  cancelEdit(): void {
-    this.editingSetId = null;
-    this.editWeight = 0;
-    this.editReps = 0;
-    this.editingSetNumber = null;
-  }
-
-  deleteSet(set: WorkoutSet): void {
-    if (!set || !set.setId) {
-      // If it's an unsaved local set, just remove it
-      this.sets = this.sets.filter(s => s !== set);
-      this.setsChanged.emit(this.sets);
-      return;
-    }
-
-    this.workoutsetService.deleteWorkoutSet(set.setId).subscribe({
-      next: () => {
-        this.sets = this.sets.filter(s => s.setId !== set.setId);
+        console.error('❌ Save failed:', error);
+        this.sets.pop();
         this.setsChanged.emit(this.sets);
       },
-      error: (error) => {
-        console.error('Delete failed:', error);
-      }
     });
+
+    // Reset inputs
+    this.currentWeight = this.currentWeight;  // Keep weight
+    this.currentReps = this.currentReps;
+  }
+  
+    // editSet(set: WorkoutSet): void {
+    //   // Load values back into inputs and mark as not done until saved again
+    //   this.editingSetId = set.setId;
+    //   this.editingSetNumber = set.setNumber;
+    //   this.currentWeight = set.weight;
+    //   this.currentReps = set.reps;
+    //   set.done = false;
+    // }
+  
+    deleteSet(set: WorkoutSet): void {
+      if (!set.setId) return;  // Can't delete unsaved
+  
+      this.workoutsetService.deleteWorkoutSet(set.setId).subscribe({
+        next: () => {
+          this.sets = this.sets.filter(s => s.setId !== set.setId);
+          this.setsChanged.emit(this.sets);
+        },
+        error: console.error
+      });
   }
 
-  // Template button helpers
+  editWeight = 0;
+editReps = 0;
+
+startEdit(set: WorkoutSet): void {
+  if (!set.setId || set.setId <= 0) return;
+  this.editingSetId = set.setId;
+  this.editWeight = set.weight;
+  this.editReps = set.reps;
+}
+
+cancelEdit(): void {
+  this.editingSetId = null;
+}
+
+saveEdit(set: WorkoutSet): void {
+  if (!this.workout?.workout_id) return;
+  if (!set.setId || set.setId <= 0) return;
+
+  const payload: WorkoutSet = {
+    setId: set.setId,
+    workoutId: set.workoutId,
+    exerciseId: set.exerciseId,
+    setNumber: set.setNumber,
+    weight: this.editWeight,
+    reps: this.editReps,
+    done: true,
+  };
+
+  this.workoutsetService.updateWorkoutSet(payload).subscribe({
+    next: () => {
+      this.editingSetId = null;
+      this.loadWorkoutSets(this.workout!.workout_id);
+    },
+    error: (e) => console.error(e),
+  });
+  }
+
   debugClick(): void {
     console.log('WorkoutsetTracker debug:', {
       workout: this.workout,

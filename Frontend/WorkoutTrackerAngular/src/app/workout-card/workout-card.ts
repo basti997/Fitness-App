@@ -84,13 +84,3 @@ onExerciseAdded(ex: any) {
 }
 
 }
-
-
-// <app-workoutset
-//   *ngIf="selectedExercise"
-//   [exerciseName]="selectedExercise.name"
-//   [todaysBestText]="selectedExerciseBestText"
-//   (setsChanged)="onSetsChanged($event)"
-//   (addExercise)="openExerciseSelector()"
-//   (finishWorkout)="onFinishClicked()">
-// </app-workoutset>
