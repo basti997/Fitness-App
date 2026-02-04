@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkoutTracker.API", "Worko
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkoutTracker.Data", "WorkoutTracker.Data\WorkoutTracker.Data.csproj", "{0A655FF7-1D69-44FB-98F2-2C5547BB1145}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkoutTracker.Tests", "WorkoutTracker.Tests\WorkoutTracker.Tests.csproj", "{CCF5EB2A-8FD8-433B-A652-EEFA689EEE5F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{0A655FF7-1D69-44FB-98F2-2C5547BB1145}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0A655FF7-1D69-44FB-98F2-2C5547BB1145}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0A655FF7-1D69-44FB-98F2-2C5547BB1145}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CCF5EB2A-8FD8-433B-A652-EEFA689EEE5F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CCF5EB2A-8FD8-433B-A652-EEFA689EEE5F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CCF5EB2A-8FD8-433B-A652-EEFA689EEE5F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CCF5EB2A-8FD8-433B-A652-EEFA689EEE5F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
