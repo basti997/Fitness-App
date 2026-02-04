@@ -1,43 +1,49 @@
+using System;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using WorkoutTracker.Data.Repositories;
+using WorkoutTracker.API.Models;
 using WorkoutTracker.Data.Entities;
-using System;
+using WorkoutTracker.Data.Repositories;
 
-namespace WorkoutTracker.Api.Controllers
+namespace WorkoutTracker.API.Controllers
 {
     [ApiController]
-    [Route("api/workout")]
+    [Route("api/[controller]")]
     public class WorkoutController : ControllerBase
     {
+        private readonly IConfiguration _configuration;
         private readonly WorkoutRepository _repo;
 
         public WorkoutController(IConfiguration configuration)
         {
+            _configuration = configuration;
             _repo = new WorkoutRepository(configuration);
         }
 
-        public class CreateWorkoutDto
+        // GET api/workout
+        // Added so simple List requests to /api/workout do not return 405.
+        [HttpGet]
+        public IActionResult GetAll()
         {
-            public int UserId { get; set; }
-            public DateTime? WorkoutDate { get; set; }
-            public string Notes { get; set; }
+            var list = _repo.GetAllWorkouts();
+            return Ok(list);
         }
 
-        // GET api/workout/user/{userId}
-        [HttpGet("user/{userId:int}")]
-        public IActionResult GetForUser(int userId)
+        // GET api/workout/user/29
+        [HttpGet("user/{userId}")]
+        public IActionResult GetByUser(int userId)
         {
-            if (userId <= 0) return BadRequest();
+            if (userId <= 0) return BadRequest("Invalid userId");
             var list = _repo.GetWorkoutsByUserId(userId);
             return Ok(list);
         }
 
         // GET api/workout/{id}
-        [HttpGet("{id:int}")]
+        [HttpGet("{id}")]
         public IActionResult GetById(int id)
         {
-            if (id <= 0) return BadRequest();
+            if (id <= 0) return BadRequest("Invalid id");
             var w = _repo.GetWorkoutById(id);
             if (w == null) return NotFound();
             return Ok(w);
@@ -47,36 +53,26 @@ namespace WorkoutTracker.Api.Controllers
         [HttpPost]
         public IActionResult Create([FromBody] CreateWorkoutDto dto)
         {
-            if (dto == null || dto.UserId <= 0) return BadRequest();
-            var workout = new Workout(0)
+            if (dto == null) return BadRequest("Missing request body");
+            if (dto.UserId <= 0) return BadRequest("UserId missing or invalid");
+
+            // Ensure an idempotency token exists even if client omitted it
+            dto.ExternalId ??= Guid.NewGuid().ToString();
+
+            var entity = new Workout
             {
                 UserId = dto.UserId,
                 WorkoutDate = dto.WorkoutDate ?? DateTime.UtcNow,
-                Notes = dto.Notes ?? string.Empty
+                Notes = dto.Notes ?? string.Empty,
+                ExternalId = dto.ExternalId
             };
 
-            var id = _repo.InsertWorkout(workout);
-            if (id == 0) return StatusCode(500, "Could not create workout");
-            return CreatedAtAction(nameof(GetById), new { id = id }, new { id = id });
-        }
-          // PUT api/workout
-        [HttpPut]
-        public IActionResult Update([FromBody] Workout workout)
-        {
-            if (workout == null || workout.Id <= 0) return BadRequest();
-            var ok = _repo.UpdateWorkout(workout);
-            if (!ok) return StatusCode(500, "Could not update workout");
-            return NoContent(); // standard for successful PUT with no body
+            var newId = _repo.InsertWorkout(entity);
+            if (newId <= 0) return StatusCode(500, "Failed to create workout");
+
+            return CreatedAtAction(nameof(GetById), new { id = newId }, new { id = newId });
         }
 
-        // DELETE api/workout/{id}
-        [HttpDelete("{id:int}")]
-        public IActionResult Delete(int id)
-        {
-            if (id <= 0) return BadRequest();
-            var ok = _repo.DeleteWorkout(id);
-            if (!ok) return NotFound(); // nothing deleted
-            return NoContent();
-        }
+        // (Optional) add Update/Delete endpoints as needed
     }
 }

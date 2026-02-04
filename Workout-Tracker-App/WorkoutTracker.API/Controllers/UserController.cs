@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using WorkoutTracker.Data.Repositories;
 using WorkoutTracker.Data.Entities;
 using System;
+using System.Linq;
 
 namespace WorkoutTracker.Api.Controllers
 {
@@ -28,6 +29,15 @@ namespace WorkoutTracker.Api.Controllers
             public string Username { get; set; }
             public string Email { get; set; }
             public string Password { get; set; }
+        }
+
+        // GET api/user
+        [HttpGet]
+        public IActionResult GetAll()
+        {
+            var users = _repo.GetUsers();
+            var dto = users.Select(u => new { id = u.Id, username = u.Username, email = u.Email, createdAt = u.CreatedAt });
+            return Ok(dto);
         }
 
         // POST api/user/login
