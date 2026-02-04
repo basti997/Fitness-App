@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.1" />
     <PackageReference Include="coverlet.collector" Version="6.0.2" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
     <PackageReference Include="moq" Version="4.20.72" />
@@ -23,9 +24,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Workout-Tracker-App\WorkoutTracker.API\WorkoutTracker.API.csproj" />
-    <ProjectReference Include="..\Workout-Tracker-App\WorkoutTracker.Data\WorkoutTracker.Data.csproj" />
-
+    <!-- Correct relative path: go up one level, then into WorkoutTracker.API -->
+    <ProjectReference Include="..\WorkoutTracker.API\WorkoutTracker.API.csproj" />
+    <ProjectReference Include="..\WorkoutTracker.Data\WorkoutTracker.Data.csproj" />
   </ItemGroup>
 
 </Project>
